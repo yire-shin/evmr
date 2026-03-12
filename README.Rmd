@@ -54,6 +54,15 @@ library(evmr)
 
 Future versions of the package will include functions for fitting extreme value models and estimating return levels using r-largest order statistics.
 
+## Applications
+
+The `evmr` package can be used for analyzing extreme events in areas such as:
+
+- Hydrology (e.g., flood frequency analysis)
+- Climatology (e.g., extreme temperature and precipitation)
+- Environmental risk assessment
+- Infrastructure design based on extreme events
+
 ## Development
 
 `evmr` is currently under active development. Additional functionality and examples will be added in future releases.
