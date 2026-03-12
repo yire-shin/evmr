@@ -1,13 +1,56 @@
 Package: evmr
-Title: What the Package Does (One Line, Title Case)
+Type: Package
+Title: Extreme Value Modeling for R-Largest Order Statistics
 Version: 0.0.0.9000
-Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
-License: GPL (>= 3)
+Authors@R:
+    c(
+      person("Yire", "Shin", email = "your_email@example.com", role = c("aut", "cre")),
+      person("Jeong-Soo", "Park", role = "aut")
+    )
+Description: Provides tools for extreme value modeling based on
+    r-largest order statistics. The package implements parameter
+    estimation, return level estimation, profile likelihood-based
+    confidence intervals, random generation, and entropy difference
+    tests for selecting the number of order statistics r. Several
+    r-largest order statistics models are supported, including the
+    four-parameter kappa (rK4D), generalized logistic (rGLO),
+    generalized Gumbel (rGGD), logistic (rLD), and Gumbel (rGD)
+    distributions. The rK4D methodology is described in Shin et al.
+    (2022) <doi:10.1016/j.wace.2022.100533>. The rGLO model is
+    described in Shin and Park (2024)
+    <doi:10.1007/s00477-023-02642-7>, and the rGGD model is described
+    in Shin and Park (2025)
+    <doi:10.1038/s41598-024-83273-y>. The underlying kappa
+    distribution is based on Hosking (1994)
+    <doi:10.1017/CBO9780511529443>, the generalized logistic
+    distribution relates to Ahmad et al. (1988)
+    <doi:10.1016/0022-1694(88)90015-7>, and the generalized Gumbel
+    distribution is related to Jeong et al. (2014)
+    <doi:10.1007/s00477-014-0865-8>. Penalized likelihood methods for
+    extreme value estimation follow Martins and Stedinger (2000)
+    <doi:10.1029/1999WR900330> and Coles and Dixon (1999)
+    <doi:10.1023/A:1009905222644>. The selection of r is supported
+    using methods discussed in Bader et al. (2017)
+    <doi:10.1007/s11222-016-9697-3>. The package is designed for
+    hydrological, climatological, and environmental extreme value
+    analysis.
+License: GPL-3
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
-Suggests: 
-    testthat (>= 3.0.0)
+Depends:
+    R (>= 4.1.0)
+Imports:
+    eva,
+    graphics,
+    lmomco,
+    numDeriv,
+    Rsolnp,
+    stats
+Suggests:
+    testthat (>= 3.0.0),
+    knitr,
+    rmarkdown
 Config/testthat/edition: 3
+LazyData: true
+VignetteBuilder: knitr
