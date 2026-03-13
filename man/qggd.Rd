@@ -2,23 +2,43 @@
 % Please edit documentation in R/qggd.R
 \name{qggd}
 \alias{qggd}
-\title{qunatile of ggd}
+\title{Quantile Function of the Generalized Gumbel Distribution}
 \usage{
 qggd(p, loc = 0, scale = 1, shape = 0)
 }
 \arguments{
-\item{p}{Vector of quantiles.}
+\item{p}{A numeric vector of probabilities in \eqn{(0,1)}.}
 
-\item{loc, scale, shape}{Location, scale, and shape parameters. Can be vectors, but the lengths must be appropriate.}
+\item{loc}{A numeric value specifying the location parameter.}
+
+\item{scale}{A positive numeric value specifying the scale parameter.}
+
+\item{shape}{A numeric value specifying the shape parameter.}
 }
 \value{
-quantile function for the 1-GGD distribution
+A numeric vector of quantiles corresponding to \code{p}.
 }
 \description{
-qunatile of ggd
+Computes the quantiles of the generalized Gumbel distribution
+with location parameter \code{loc}, scale parameter \code{scale},
+and shape parameter \code{shape}.
+}
+\details{
+The quantile function is computed as
+\deqn{Q(p) = \mu - \sigma \log \left( \frac{1 - p^h}{h} \right), \quad h \neq 0,}
+with the limiting case
+\deqn{Q(p) = \mu - \sigma \log(-\log p), \quad h = 0,}
+where \eqn{\mu} is the location parameter, \eqn{\sigma > 0} is the
+scale parameter, and \eqn{h} is the shape parameter.
 }
 \examples{
-\dontrun{
-qggd(0.5, loc = 0, scale=1, shape = 0.1)
+qggd(0.5, loc = 0, scale = 1, shape = 0.1)
+qggd(c(0.1, 0.5, 0.9), loc = 0, scale = 1, shape = 0.1)
 }
+\references{
+Jeong, B.-Y., Murshed, M. S., Seo, Y. A., and Park, J.-S. (2014).
+A three-parameter kappa distribution with hydrologic application:
+a generalized Gumbel distribution.
+\emph{Stochastic Environmental Research and Risk Assessment},
+28(8), 2063--2074.
 }

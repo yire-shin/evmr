@@ -2,23 +2,31 @@
 % Please edit documentation in R/qgd.R
 \name{qgd}
 \alias{qgd}
-\title{qunatile of gumbel}
+\title{Quantile Function of the Gumbel Distribution}
 \usage{
 qgd(p, loc = 0, scale = 1)
 }
 \arguments{
-\item{p}{Vector of quantiles.}
+\item{p}{A numeric vector of probabilities in \eqn{(0,1)}.}
 
-\item{loc, scale}{Location, scale parameters. Can be vectors, but the lengths must be appropriate.}
+\item{loc}{A numeric value specifying the location parameter.}
+
+\item{scale}{A positive numeric value specifying the scale parameter.}
 }
 \value{
-quantile function for the 1-GD distribution
+A numeric vector of quantiles corresponding to \code{p}.
 }
 \description{
-qunatile of gumbel
+Computes the quantiles of the Gumbel distribution with location
+parameter \code{loc} and scale parameter \code{scale}.
+}
+\details{
+The quantile function of the Gumbel distribution is
+\deqn{Q(p) = \mu - \sigma \log(-\log(p)),}
+where \eqn{\mu} is the location parameter and \eqn{\sigma > 0}
+is the scale parameter.
 }
 \examples{
-\dontrun{
-qgd(0.5, loc = 0, scale=1)
-}
+qgd(0.5, loc = 0, scale = 1)
+qgd(c(0.1, 0.5, 0.9), loc = 0, scale = 1)
 }

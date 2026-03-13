@@ -2,7 +2,7 @@
 % Please edit documentation in R/rk4d.summary.R
 \name{rk4d.summary}
 \alias{rk4d.summary}
-\title{Summary of rk4d.fit}
+\title{Summary of Fitted rK4D Models over Different Values of r}
 \usage{
 rk4d.summary(
   data,
@@ -34,8 +34,8 @@ rk4d.summary(
 r-largest order statistics. Each row should contain decreasing order
 statistics for one block or time period.}
 
-\item{r}{Optional integer specifying the maximum number of order
-statistics to summarize. If \code{NULL}, all available columns are used.}
+\item{r}{Optional integer giving the maximum number of order statistics
+to summarize. If \code{NULL}, all available columns are used.}
 
 \item{penk}{Penalty function for the \code{xi} parameter in maximum
 penalized likelihood estimation.}
@@ -43,28 +43,28 @@ penalized likelihood estimation.}
 \item{penh}{Penalty function for the \code{h} parameter in maximum
 penalized likelihood estimation.}
 
-\item{ydat}{A matrix of covariates for generalized linear modelling of the
-parameters, or \code{NULL} for stationary fitting.}
+\item{ydat}{A matrix or data frame of covariates for generalized linear
+modelling of the parameters, or \code{NULL} for stationary fitting.}
 
-\item{mul, sigl, shl, hl}{Numeric vectors of integers giving the columns of
-\code{ydat} to be used for the location, scale, shape, and \code{h}
-parameters, respectively.}
+\item{mul, sigl, shl, hl}{Integer vectors indicating which columns of
+\code{ydat} are used for the location, scale, first shape, and second
+shape parameters, respectively.}
 
 \item{mulink, siglink, shlink, hlink}{Inverse link functions for the location,
-scale, shape, and \code{h} parameters, respectively.}
+scale, first shape, and second shape parameters, respectively.}
 
 \item{num_inits}{Number of initial parameter sets used in optimization.}
 
 \item{muinit, siginit, shinit, hinit}{Optional initial values for the location,
-scale, shape, and \code{h} parameters.}
+scale, first shape, and second shape parameters.}
 
-\item{show}{Logical; if \code{TRUE}, print details from model fitting.}
+\item{show}{Logical. If \code{TRUE}, print details from model fitting.}
 
 \item{method}{Optimization method passed to \code{\link{optim}}.}
 
 \item{maxit}{Maximum number of iterations for optimization.}
 
-\item{\dots}{Additional arguments passed to \code{rk4d.fit()}.}
+\item{...}{Additional arguments passed to \code{\link{rk4d.fit}}.}
 }
 \value{
 A data frame containing:
@@ -73,19 +73,19 @@ A data frame containing:
 \item \code{nllh}: negative log-likelihood
 \item \code{mu}, \code{sigma}, \code{xi}, \code{h}: parameter estimates
 \item \code{mu.se}, \code{sigma.se}, \code{xi.se}, \code{h.se}: standard errors
-\item return levels and their standard errors for 20-, 50-, 100-, and 200-year periods
+\item \code{rl20}, \code{rl50}, \code{rl100}, \code{rl200}: return levels
+\item \code{rl20.se}, \code{rl50.se}, \code{rl100.se}, \code{rl200.se}:
+standard errors of return levels
 }
 }
 \description{
-Summarize the fitted four-parameter kappa distribution models for
+Summarizes fitted four-parameter kappa distribution models for
 r-largest order statistics over \eqn{r = 1, \dots, R}. For each value
-of \code{r}, the function fits the model using \code{rk4d.fit()} and
-computes return levels using \code{rk4d.rl()}.
+of \code{r}, the function fits the model using \code{\link{rk4d.fit}}
+and computes return levels using \code{\link{rk4d.rl}}.
 }
 \examples{
-\dontrun{
-data(bangkok)
-rk4d.summary(bangkok)
-rk4d.summary(bangkok, penk = "CD", penh = "MS")
-}
+x <- rk4dr(n = 50, r = 3, loc = 10, scale = 2, shape1 = 0.1, shape2 = 0.1)
+rk4d.summary(x$rmat, num_inits = 5)
+rk4d.summary(x$rmat, penk = "CD", penh = "MS", num_inits = 5)
 }

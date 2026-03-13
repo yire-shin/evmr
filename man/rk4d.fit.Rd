@@ -2,7 +2,7 @@
 % Please edit documentation in R/rk4d.fit.R
 \name{rk4d.fit}
 \alias{rk4d.fit}
-\title{Four Parameter Kappa Distribution for $r$ Largest Order Statistics}
+\title{Fit the Four-Parameter Kappa Distribution to r-Largest Order Statistics}
 \usage{
 rk4d.fit(
   xdat,
@@ -30,56 +30,100 @@ rk4d.fit(
 )
 }
 \arguments{
-\item{xdat}{A numeric matrix of data to be fitted. Each row should be a vector of decreasing order, containing the largest order statistics for each year (or time period). The first column therefore contains annual (or period) maxima. Only the first \code{r} columns are used for the fitted model. By default, all columns are used.If one year (or time period) contains fewer order statistics than another, missing values can be appended to the end of the corresponding row.#'}
+\item{xdat}{A numeric vector, matrix, or data frame of observations.
+Each row should contain decreasing order statistics for a given year
+or block. The first column therefore contains block maxima. Only the
+first \code{r} columns are used in the fitted model. If \code{r} is
+\code{NULL}, all available columns are used.}
 
-\item{r}{The largest \code{r} order statistics are used for the fitted model.}
+\item{r}{The number of largest order statistics to use in the fitted model.
+If \code{NULL}, all columns of \code{xdat} are used.}
 
-\item{penk}{Maximum penalized likelihood estimation. Coles and Dixon's Penalty function, Martins and Stedinger's Penalty function}
+\item{penk}{Optional penalty for the first shape parameter. Supported values
+include \code{"CD"} and \code{"MS"}.}
 
-\item{penh}{Maximum penalized likelihood estimation.  Coles and Dixon's Penalty function, Martins and Stedinger's Penalty function}
+\item{penh}{Optional penalty for the second shape parameter. Supported values
+include \code{"MS"} and \code{"MSa"}.}
 
-\item{ydat}{A matrix of covariates for generalized linear modelling of the parameters (or \code{NULL} (the default) for stationary fitting). The number of rows should be the same as the number of rows of \code{xdat}.}
+\item{ydat}{A matrix or data frame of covariates for non-stationary
+modelling of the parameters, or \code{NULL} for a stationary model.
+The number of rows must match the number of rows of \code{xdat}.}
 
-\item{mul, sigl, shl, hl}{Numeric vectors of integers, giving the columns of \code{ydat} that contain covariates for generalized linear modelling of the location, scale and shape parameters repectively (or \code{NULL} (the default) if the corresponding parameter is stationary).}
+\item{mul, sigl, shl, hl}{Integer vectors indicating which columns of
+\code{ydat} are used as covariates for the location, scale, first shape,
+and second shape parameters, respectively.}
 
-\item{mulink, siglink, shlink, hlink}{Inverse link functions for generalized linear modelling of the location, scale and shape parameters repectively.}
+\item{mulink, siglink, shlink, hlink}{Inverse link functions for the location,
+scale, first shape, and second shape parameters, respectively.}
 
-\item{num_inits}{Specifies the number of initial parameter sets to be generated for the optimization process.}
+\item{num_inits}{The number of initial parameter sets used in the
+optimization.}
 
-\item{muinit, siginit, shinit, hinit}{numeric of length equal to total number of parameters used to model the location, scale or shape parameter(s), resp.  See Details section for default (NULL) initial values.}
+\item{muinit, siginit, shinit, hinit}{Numeric vectors giving initial values for
+the location, scale, first shape, and second shape parameters. If
+\code{NULL}, default initial values based on L-moments are used.}
 
-\item{show}{Logical; if \code{TRUE} (the default), print details of the fit.}
+\item{show}{Logical. If \code{TRUE}, details of the fitted model are printed.}
 
-\item{method}{The optimization method (see \code{\link{optim}} for details).}
+\item{method}{Optimization method passed to \code{\link{optim}} for
+stationary fits.}
 
-\item{maxit}{The maximum number of iterations.}
+\item{maxit}{Maximum number of iterations for \code{\link{optim}}.}
 
-\item{\dots}{Other control parameters for the optimization. These are passed to components of the \code{control} argument of \code{optim}.}
+\item{...}{Additional control arguments passed to the optimizer.}
 }
 \value{
-{
-A list containing the following components. A subset of these components are printed after the fit. If \code{show} is \code{TRUE}, then assuming that successful convergence is indicated, the components \code{nllh}, \code{mle} and \code{se} are always printed.
-\item{trans}{An logical indicator for a non-stationary fit.}\item{model}{A list with components \code{mul}, \code{sigl} and \code{shl}.} \item{link}{A character vector giving inverse link functions.} \item{conv}{The convergence code, taken from the list returned by \code{\link{optim}}. A zero indicates successful convergence.} \item{nllh}{The negative logarithm of the likelihood evaluated at the maximum likelihood estimates.}
-\item{model}{A list with components \code{mul}, \code{sigl}, \code{shl} and \code{hl}.}
-\item{link}{A character vector giving inverse link functions.}
-\item{conv}{The convergence code, taken from the list returned by \code{\link{optim}}. A zero indicates successful convergence.}
-\item{nllh}{The negative logarithm of the likelihood evaluated at the maximum likelihood estimates.}
-\item{data}{The data that has been fitted. For non-stationary models, the data is standardized.}
-\item{mle}{A vector containing the maximum likelihood estimates.}
-\item{cov}{The covariance matrix.}
-\item{se}{A vector containing the standard errors.}
-\item{vals}{A matrix with three columns containing the maximum likelihood estimates of the location, scale and shape parameters at each data point.}
-\item{r}{The number of order statistics used.}
-}
+A list with components including:
+\item{trans}{Logical; \code{TRUE} if a non-stationary model is fitted.}
+\item{model}{A list containing \code{mul}, \code{sigl}, \code{shl}, and \code{hl}.}
+\item{link}{A character vector describing the inverse link functions.}
+\item{conv}{The convergence code returned by the optimizer.}
+\item{nllh}{The negative log-likelihood evaluated at the fitted parameters.}
+\item{data}{The data used in the fit.}
+\item{mle}{The maximum likelihood estimates.}
+\item{cov}{The estimated covariance matrix when available.}
+\item{se}{The estimated standard errors when available.}
+\item{vals}{A matrix containing fitted values of the location, scale,
+first shape, and second shape parameters at each observation.}
+\item{r}{The number of order statistics used in the fitted model.}
 }
 \description{
-Maximum-likelihood fitting for the order statistic model,including generalized linear modelling of each parameter.
+Fits the four-parameter kappa distribution to \eqn{r}-largest order
+statistics using maximum likelihood estimation. Stationary and
+non-stationary models are supported through generalized linear modelling
+of the location, scale, and two shape parameters.
 }
 \examples{
-\dontrun{
-data(bangkok)
-rk4d.fit(bangkok)
+x <- rk4dr(n = 50, r = 2, loc = 10, scale = 2, shape1 = 0.1, shape2 = 0.1)
+fit <- rk4d.fit(x$rmat, num_inits = 5)
+fit$r
+fit$mle
 }
+\references{
+Hosking, J. R. M. (1994).
+The four-parameter kappa distribution.
+\emph{IBM Journal of Research and Development}, 38(3), 251–258.
+
+Martins, E. S., & Stedinger, J. R. (2000).
+Generalized maximum-likelihood generalized extreme-value quantile
+estimators for hydrologic data.
+\emph{Water Resources Research}, 36(3), 737–744.
+\doi{10.1029/1999WR900330}
+
+Coles, S., & Dixon, M. (1999).
+Likelihood-based inference for extreme value models.
+\emph{Extremes}, 2(1), 5–23.
+\doi{10.1023/A:1009905222644}
+
+Coles, S. (2001).
+An Introduction to Statistical Modeling of Extreme Values.
+Springer.
+
+Shin, Y., & Park, J.-S. (2023).
+Modeling climate extremes using the four-parameter kappa distribution
+for r-largest order statistics.
+\emph{Weather and Climate Extremes}.
+\doi{10.1016/j.wace.2022.100533}
 }
 \seealso{
 \code{\link{optim}}

@@ -2,27 +2,45 @@
 % Please edit documentation in R/rld.rl.R
 \name{rld.rl}
 \alias{rld.rl}
-\title{return level for logistic}
+\title{Return Levels for the Logistic Distribution}
 \usage{
-rld.rl(z, year = c(20, 50, 100, 200), show = F)
+rld.rl(z, year = c(20, 50, 100, 200), show = FALSE)
 }
 \arguments{
-\item{z}{An object returned by \code{rld.fit}. The object should represent a stationary model.}
+\item{z}{An object returned by \code{\link{rld.fit}}. The fitted model
+should represent a stationary model.}
 
-\item{year}{The return level (i.e.\ the profile likelihood is for the value that is exceeded with probability 1/\code{m}).}
+\item{year}{A numeric vector of return periods for which return levels
+are to be computed.}
 
-\item{show}{Logical; if \code{TRUE} (the default), print details of the result.}
+\item{show}{Logical. If \code{TRUE}, the estimated return levels and
+their standard errors are printed.}
 }
 \value{
-The return level and numeric vector giving the standard errors for the return level.
+The input object \code{z} with two additional components:
+\itemize{
+\item \code{rl}: a numeric vector of estimated return levels
+\item \code{rlse}: a numeric vector of standard errors of the estimated return levels
+}
 }
 \description{
-return level for logistic
+Computes return levels and their standard errors for a stationary
+logistic model fitted by \code{\link{rld.fit}}.
+}
+\details{
+For a return period \eqn{T}, the return level is defined as the quantile
+exceeded with probability \eqn{1/T}. Under the logistic distribution,
+the return level is
+\deqn{x_T = \mu + \sigma \log\left(\frac{1}{\exp(-\log(1-1/T)) - 1}\right),}
+and standard errors are obtained using the delta method.
 }
 \examples{
-\dontrun{
-data(bangkok)
-result<-rld.fit(bangkok)
-rld.rl(result$mle,result$cov,100)
+x <- rldr(n = 50, r = 2, loc = 10, scale = 2)
+fit <- rld.fit(x$rmat, num_inits = 5)
+out <- rld.rl(fit, year = c(20, 50, 100))
+out$rl
+out$rlse
 }
+\seealso{
+\code{\link{rld.fit}}, \code{\link{rld.prof}}
 }

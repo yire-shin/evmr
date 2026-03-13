@@ -2,23 +2,31 @@
 % Please edit documentation in R/qld.R
 \name{qld}
 \alias{qld}
-\title{qunatile of logistic}
+\title{Quantile Function of the Logistic Distribution}
 \usage{
 qld(p, loc = 0, scale = 1)
 }
 \arguments{
-\item{p}{Vector of quantiles.}
+\item{p}{A numeric vector of probabilities in \eqn{(0,1)}.}
 
-\item{loc, scale}{Location, scale parameters. Can be vectors, but the lengths must be appropriate.}
+\item{loc}{A numeric value specifying the location parameter.}
+
+\item{scale}{A positive numeric value specifying the scale parameter.}
 }
 \value{
-quantile function for the 1-LD distribution
+A numeric vector of quantiles corresponding to \code{p}.
 }
 \description{
-qunatile of logistic
+Computes the quantiles of the logistic distribution with location
+parameter \code{loc} and scale parameter \code{scale}.
+}
+\details{
+The quantile function of the logistic distribution is
+\deqn{Q(p) = \mu + \sigma \log\left(\frac{p}{1-p}\right),}
+where \eqn{\mu} is the location parameter and \eqn{\sigma > 0}
+is the scale parameter.
 }
 \examples{
-\dontrun{
-qld(0.5, loc = 0, scale=1)
-}
+qld(0.5, loc = 0, scale = 1)
+qld(c(0.1, 0.5, 0.9), loc = 0, scale = 1)
 }

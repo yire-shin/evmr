@@ -2,27 +2,43 @@
 % Please edit documentation in R/rgd.rl.R
 \name{rgd.rl}
 \alias{rgd.rl}
-\title{return level for gumbel}
+\title{Return Levels for the Gumbel Distribution}
 \usage{
-rgd.rl(z, year = c(20, 50, 100, 200), show = F)
+rgd.rl(z, year = c(20, 50, 100, 200), show = FALSE)
 }
 \arguments{
-\item{z}{An object returned by \code{rgd.fit}. The object should represent a stationary model.}
+\item{z}{An object returned by \code{\link{rgd.fit}}. The fitted model
+should represent a stationary model.}
 
-\item{year}{The return level (i.e.\ the profile likelihood is for the value that is exceeded with probability 1/\code{m}).}
+\item{year}{A numeric vector of return periods for which return levels
+are to be computed.}
 
-\item{show}{Logical; if \code{TRUE} (the default), print details of the result.}
+\item{show}{Logical. If \code{TRUE}, the estimated return levels and
+their standard errors are printed.}
 }
 \value{
-The return level and numeric vector giving the standard errors for the return level.
+The input object \code{z} with two additional components:
+\item{rl}{A numeric vector of estimated return levels.}
+\item{rlse}{A numeric vector of standard errors of the estimated return levels.}
 }
 \description{
-return level for gumbel
+Computes return levels and their standard errors for a stationary
+Gumbel model fitted by \code{\link{rgd.fit}}.
+}
+\details{
+For a return period \eqn{T}, the return level is defined as the quantile
+exceeded with probability \eqn{1/T}. Under the Gumbel distribution, the
+return level is
+\deqn{x_T = \mu - \sigma \log\{-\log(1 - 1/T)\}.}
+Standard errors are obtained using the delta method.
 }
 \examples{
-\dontrun{
-data(bangkok)
-result<-rgd.fit(bangkok)
-rgd.rl(result$mle,result$cov,100)
+x <- rgdr(n = 50, r = 2, loc = 10, scale = 2)
+fit <- rgd.fit(x$rmat)
+out <- rgd.rl(fit, year = c(20, 50, 100))
+out$rl
+out$rlse
 }
+\seealso{
+\code{\link{rgd.fit}}, \code{\link{rgd.prof}}
 }

@@ -2,27 +2,43 @@
 % Please edit documentation in R/rggd.rl.R
 \name{rggd.rl}
 \alias{rggd.rl}
-\title{return level for ggd}
+\title{Return Levels for the Generalized Gumbel Distribution}
 \usage{
-rggd.rl(z, year = c(20, 50, 100, 200), show = F)
+rggd.rl(z, year = c(20, 50, 100, 200), show = FALSE)
 }
 \arguments{
-\item{z}{An object returned by \code{rggd.fit}. The object should represent a stationary model.}
+\item{z}{An object returned by \code{\link{rggd.fit}}. The fitted model
+should represent a stationary model.}
 
-\item{year}{The return level (i.e.\ the profile likelihood is for the value that is exceeded with probability 1/\code{m}).}
+\item{year}{A numeric vector of return periods for which return levels
+are to be computed.}
 
-\item{show}{Logical; if \code{TRUE} (the default), print details of the result.}
+\item{show}{Logical. If \code{TRUE}, the estimated return levels and
+their standard errors are printed.}
 }
 \value{
-The return level and numeric vector giving the standard errors for the return level.
+The input object \code{z} with two additional components:
+\item{rl}{A numeric vector of estimated return levels.}
+\item{rlse}{A numeric vector of standard errors of the estimated return levels.}
 }
 \description{
-return level for ggd
+Computes return levels and their standard errors for a stationary
+generalized Gumbel model fitted by \code{\link{rggd.fit}}.
+}
+\details{
+For a return period \eqn{T}, the return level is defined as the quantile
+exceeded with probability \eqn{1/T}. Under the generalized Gumbel
+distribution, the return level is
+\deqn{x_T = \mu - \sigma \log\left(\frac{1-(1-1/T)^h}{h}\right), \quad h \neq 0.}
+Standard errors are obtained using the delta method.
 }
 \examples{
-\dontrun{
-data(bangkok)
-result<-rk4d.fit(bangkok)
-rggd.rl(result$mle,result$cov,100)
+x <- rggdr(n = 50, r = 2, loc = 10, scale = 2, shape = 0.1)
+fit <- rggd.fit(x$rmat)
+out <- rggd.rl(fit, year = c(20, 50, 100))
+out$rl
+out$rlse
 }
+\seealso{
+\code{\link{rggd.fit}}, \code{\link{rggd.prof}}
 }

@@ -1,81 +1,139 @@
-#' @name rk4d.fit
-#' @aliases rk4d.fit
-#' @title Four Parameter Kappa Distribution for $r$ Largest Order Statistics
-#' @description
-#' Maximum-likelihood fitting for the order statistic model,including generalized linear modelling of each parameter.
+#' Fit the Four-Parameter Kappa Distribution to r-Largest Order Statistics
 #'
-#' @param xdat A numeric matrix of data to be fitted. Each row should be a vector of decreasing order, containing the largest order statistics for each year (or time period). The first column therefore contains annual (or period) maxima. Only the first \code{r} columns are used for the fitted model. By default, all columns are used.If one year (or time period) contains fewer order statistics than another, missing values can be appended to the end of the corresponding row.#'
-#' @param r The largest \code{r} order statistics are used for the fitted model.
-#' @param penk Maximum penalized likelihood estimation. Coles and Dixon's Penalty function, Martins and Stedinger's Penalty function
-#' @param penh Maximum penalized likelihood estimation.  Coles and Dixon's Penalty function, Martins and Stedinger's Penalty function
-#' @param ydat A matrix of covariates for generalized linear modelling of the parameters (or \code{NULL} (the default) for stationary fitting). The number of rows should be the same as the number of rows of \code{xdat}.
-#' @param mul,sigl,shl,hl Numeric vectors of integers, giving the columns of \code{ydat} that contain covariates for generalized linear modelling of the location, scale and shape parameters repectively (or \code{NULL} (the default) if the corresponding parameter is stationary).
-#' @param mulink,siglink,shlink,hlink Inverse link functions for generalized linear modelling of the location, scale and shape parameters repectively.
-#' @param num_inits Specifies the number of initial parameter sets to be generated for the optimization process.
-#' @param muinit,siginit,shinit,hinit numeric of length equal to total number of parameters used to model the location, scale or shape parameter(s), resp.  See Details section for default (NULL) initial values.
-#' @param show Logical; if \code{TRUE} (the default), print details of the fit.
-#' @param method The optimization method (see \code{\link{optim}} for details).
-#' @param maxit The maximum number of iterations.
-#' @param \dots Other control parameters for the optimization. These are passed to components of the \code{control} argument of \code{optim}.
+#' Fits the four-parameter kappa distribution to \eqn{r}-largest order
+#' statistics using maximum likelihood estimation. Stationary and
+#' non-stationary models are supported through generalized linear modelling
+#' of the location, scale, and two shape parameters.
 #'
-#' @return {
-#'  A list containing the following components. A subset of these components are printed after the fit. If \code{show} is \code{TRUE}, then assuming that successful convergence is indicated, the components \code{nllh}, \code{mle} and \code{se} are always printed.
-#'  \item{trans}{An logical indicator for a non-stationary fit.}\item{model}{A list with components \code{mul}, \code{sigl} and \code{shl}.} \item{link}{A character vector giving inverse link functions.} \item{conv}{The convergence code, taken from the list returned by \code{\link{optim}}. A zero indicates successful convergence.} \item{nllh}{The negative logarithm of the likelihood evaluated at the maximum likelihood estimates.}
-#'  \item{model}{A list with components \code{mul}, \code{sigl}, \code{shl} and \code{hl}.}
-#'  \item{link}{A character vector giving inverse link functions.}
-#'  \item{conv}{The convergence code, taken from the list returned by \code{\link{optim}}. A zero indicates successful convergence.}
-#'  \item{nllh}{The negative logarithm of the likelihood evaluated at the maximum likelihood estimates.}
-#'  \item{data}{The data that has been fitted. For non-stationary models, the data is standardized.}
-#'  \item{mle}{A vector containing the maximum likelihood estimates.}
-#'  \item{cov}{The covariance matrix.}
-#'  \item{se}{A vector containing the standard errors.}
-#'  \item{vals}{A matrix with three columns containing the maximum likelihood estimates of the location, scale and shape parameters at each data point.}
-#'  \item{r}{The number of order statistics used.}
-#' }
+#' @param xdat A numeric vector, matrix, or data frame of observations.
+#'   Each row should contain decreasing order statistics for a given year
+#'   or block. The first column therefore contains block maxima. Only the
+#'   first \code{r} columns are used in the fitted model. If \code{r} is
+#'   \code{NULL}, all available columns are used.
+#' @param r The number of largest order statistics to use in the fitted model.
+#'   If \code{NULL}, all columns of \code{xdat} are used.
+#' @param penk Optional penalty for the first shape parameter. Supported values
+#'   include \code{"CD"} and \code{"MS"}.
+#' @param penh Optional penalty for the second shape parameter. Supported values
+#'   include \code{"MS"} and \code{"MSa"}.
+#' @param ydat A matrix or data frame of covariates for non-stationary
+#'   modelling of the parameters, or \code{NULL} for a stationary model.
+#'   The number of rows must match the number of rows of \code{xdat}.
+#' @param mul,sigl,shl,hl Integer vectors indicating which columns of
+#'   \code{ydat} are used as covariates for the location, scale, first shape,
+#'   and second shape parameters, respectively.
+#' @param mulink,siglink,shlink,hlink Inverse link functions for the location,
+#'   scale, first shape, and second shape parameters, respectively.
+#' @param num_inits The number of initial parameter sets used in the
+#'   optimization.
+#' @param muinit,siginit,shinit,hinit Numeric vectors giving initial values for
+#'   the location, scale, first shape, and second shape parameters. If
+#'   \code{NULL}, default initial values based on L-moments are used.
+#' @param show Logical. If \code{TRUE}, details of the fitted model are printed.
+#' @param method Optimization method passed to \code{\link{optim}} for
+#'   stationary fits.
+#' @param maxit Maximum number of iterations for \code{\link{optim}}.
+#' @param ... Additional control arguments passed to the optimizer.
+#'
+#' @return A list with components including:
+#' \item{trans}{Logical; \code{TRUE} if a non-stationary model is fitted.}
+#' \item{model}{A list containing \code{mul}, \code{sigl}, \code{shl}, and \code{hl}.}
+#' \item{link}{A character vector describing the inverse link functions.}
+#' \item{conv}{The convergence code returned by the optimizer.}
+#' \item{nllh}{The negative log-likelihood evaluated at the fitted parameters.}
+#' \item{data}{The data used in the fit.}
+#' \item{mle}{The maximum likelihood estimates.}
+#' \item{cov}{The estimated covariance matrix when available.}
+#' \item{se}{The estimated standard errors when available.}
+#' \item{vals}{A matrix containing fitted values of the location, scale,
+#' first shape, and second shape parameters at each observation.}
+#' \item{r}{The number of order statistics used in the fitted model.}
+#'
+#' @references
+#'
+#' Hosking, J. R. M. (1994).
+#' The four-parameter kappa distribution.
+#' \emph{IBM Journal of Research and Development}, 38(3), 251–258.
+#'
+#' Martins, E. S., & Stedinger, J. R. (2000).
+#' Generalized maximum-likelihood generalized extreme-value quantile
+#' estimators for hydrologic data.
+#' \emph{Water Resources Research}, 36(3), 737–744.
+#' \doi{10.1029/1999WR900330}
+#'
+#' Coles, S., & Dixon, M. (1999).
+#' Likelihood-based inference for extreme value models.
+#' \emph{Extremes}, 2(1), 5–23.
+#' \doi{10.1023/A:1009905222644}
+#'
+#' Coles, S. (2001).
+#' An Introduction to Statistical Modeling of Extreme Values.
+#' Springer.
+#'
+#' Shin, Y., & Park, J.-S. (2023).
+#' Modeling climate extremes using the four-parameter kappa distribution
+#' for r-largest order statistics.
+#' \emph{Weather and Climate Extremes}.
+#' \doi{10.1016/j.wace.2022.100533}
+#'
 #' @seealso \code{\link{optim}}
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' data(bangkok)
-#' rk4d.fit(bangkok)
-#' }
-rk4d.fit <- function(xdat, r = NULL, penk = NULL, penh = NULL, ydat = NULL, mul = NULL, sigl = NULL, shl = NULL, hl = NULL,
-                     mulink = identity, siglink = identity, shlink = identity, hlink = identity, num_inits = 100,
-                     muinit = NULL, siginit = NULL, shinit = NULL, hinit = NULL, show = TRUE, method = "Nelder-Mead", maxit = 10000, ...){
+#' x <- rk4dr(n = 50, r = 2, loc = 10, scale = 2, shape1 = 0.1, shape2 = 0.1)
+#' fit <- rk4d.fit(x$rmat, num_inits = 5)
+#' fit$r
+#' fit$mle
+rk4d.fit <- function(xdat, r = NULL, penk = NULL, penh = NULL,
+                     ydat = NULL, mul = NULL, sigl = NULL, shl = NULL, hl = NULL,
+                     mulink = identity, siglink = identity,
+                     shlink = identity, hlink = identity,
+                     num_inits = 100,
+                     muinit = NULL, siginit = NULL, shinit = NULL, hinit = NULL,
+                     show = TRUE, method = "Nelder-Mead", maxit = 10000, ...) {
 
-  options(digits=8)
   z <- list()
+  tol <- .Machine$double.eps^0.5
+  BIG <- 1e6
 
-  # If r is NULL, set r to the number of columns in xdat
-  if (is.null(r)) {
-    if (is.vector(xdat)) {
-      # If xdat is a vector, convert it to a matrix with one column and set r = 1
-      xdat <- matrix(xdat, ncol = 1)
-      r <- 1
-    } else {
-      # If xdat is a matrix, keep it as is and set r to the number of columns
-      r <- dim(xdat)[2]
-    }
+  ## ----------------------------------
+  ## Input handling
+  ## ----------------------------------
+  if (is.vector(xdat)) {
+    xdat <- matrix(xdat, ncol = 1)
   } else {
-    # 2. When r is specified
-    if (r == 1) {
-      # If r = 1, ensure xdat remains a matrix with one column
-      if (is.vector(xdat)) {
-        xdat <- matrix(xdat,ncol=1)
-      } else {
-        # If xdat is already a matrix, ensure it remains a matrix with one column
-        xdat <- as.matrix(xdat[, 1:r, drop = FALSE])
-      }
-    } else {
-      # If r > 1, subset xdat to the first r columns, maintaining it as a matrix
-      #xdat <- matrix(as.matrix(xdat[,1:r],ncol=r),ncol=r)
-      xdat <- as.matrix(xdat[,1:r],ncol=r)
+    xdat <- as.matrix(xdat)
+  }
+
+  if (!is.numeric(xdat)) {
+    stop("'xdat' must be numeric.")
+  }
+
+  if (is.null(r)) {
+    r <- ncol(xdat)
+  } else {
+    if (!is.numeric(r) || length(r) != 1 || r < 1 || r != as.integer(r)) {
+      stop("'r' must be a positive integer.")
+    }
+    r <- as.integer(r)
+    if (r > ncol(xdat)) {
+      stop("'r' cannot exceed the number of columns in 'xdat'.")
+    }
+    xdat <- xdat[, 1:r, drop = FALSE]
+  }
+
+  if (!is.null(ydat)) {
+    ydat <- as.data.frame(ydat)
+    if (nrow(ydat) != nrow(xdat)) {
+      stop("'ydat' must have the same number of rows as 'xdat'.")
     }
   }
 
+  if (!is.numeric(num_inits) || length(num_inits) != 1 || num_inits < 1) {
+    stop("'num_inits' must be a positive integer.")
+  }
+  num_inits <- as.integer(num_inits)
 
-  # Determine the number of parameters for each component (mu, sigma, xi, h)
   npmu <- length(mul) + 1
   npsc <- length(sigl) + 1
   npsh <- length(shl) + 1
@@ -83,254 +141,325 @@ rk4d.fit <- function(xdat, r = NULL, penk = NULL, penh = NULL, ydat = NULL, mul 
 
   z$trans <- FALSE
 
-  # Generate parameter names based on the length of each list
   mu_names <- if (is.null(mul)) "mu" else c("mu0", paste0("mu", seq_len(npmu - 1)))
   sigma_names <- if (is.null(sigl)) "sigma" else c("sigma0", paste0("sigma", seq_len(npsc - 1)))
   xi_names <- if (is.null(shl)) "xi" else c("xi0", paste0("xi", seq_len(npsh - 1)))
   h_names <- if (is.null(hl)) "h" else c("h0", paste0("h", seq_len(nph - 1)))
 
-  # Set initial values based on L-moments of the data and user-specified predictors
   kappar <- lmomco::parkap(lmomco::lmoms(xdat[, 1]))$para
 
-  # Generate multiple sets of initial values, each with random perturbations
-  init_list <- list(kappar)
-
-
-  # Set up the mu matrix and initial values if each component (mu, sigma, xi, h) is provided
-
-  if(is.null(mul)) {
-    mumat <- as.matrix(rep(1, dim(xdat)[1]))
-    if( is.null( muinit)) muinit <- kappar[1]
+  if (is.null(mul)) {
+    mumat <- matrix(1, nrow = nrow(xdat), ncol = 1)
+    if (is.null(muinit)) muinit <- kappar[1]
   } else {
     z$trans <- TRUE
-    mumat <- cbind(rep(1, dim(xdat)[1]), ydat[, mul])
-    if( is.null( muinit)) muinit <- c(kappar[1], rep(0, length(mul)))
+    mumat <- cbind(1, as.matrix(ydat[, mul, drop = FALSE]))
+    if (is.null(muinit)) muinit <- c(kappar[1], rep(0, length(mul)))
   }
-  if(is.null(sigl)) {
-    sigmat <- as.matrix(rep(1, dim(xdat)[1]))
-    if( is.null( siginit)) siginit <- kappar[2]
+
+  if (is.null(sigl)) {
+    sigmat <- matrix(1, nrow = nrow(xdat), ncol = 1)
+    if (is.null(siginit)) siginit <- kappar[2]
   } else {
     z$trans <- TRUE
-    sigmat <- cbind(rep(1, dim(xdat)[1]), ydat[, sigl])
-    if( is.null( siginit)) siginit <- c(kappar[2], rep(0, length(sigl)))
-  }
-  if(is.null(shl)) {
-    shmat <- as.matrix(rep(1, dim(xdat)[1]))
-    if( is.null( shinit)) shinit <- kappar[3]
-  }  else {
-    z$trans <- TRUE
-    shmat <- cbind(rep(1, dim(xdat)[1]), ydat[, shl])
-    if( is.null( shinit)) shinit <- c(kappar[3], rep(0, length(shl)))
-  }
-  if(is.null(hl)) {
-    hmat <- as.matrix(rep(1, dim(xdat)[1]))
-    if( is.null( hinit)) hinit <- kappar[4]
-  }  else {
-    z$trans <- TRUE
-    hmat <- cbind(rep(1, dim(xdat)[1]), ydat[, hl])
-    if( is.null( hinit)) hinit <- c(kappar[4], rep(0, length(hl)))
+    sigmat <- cbind(1, as.matrix(ydat[, sigl, drop = FALSE]))
+    if (is.null(siginit)) siginit <- c(kappar[2], rep(0, length(sigl)))
   }
 
-  z$model <- list(mul, sigl, shl, hl)
-  z$link <- deparse(substitute(c(mulink, siglink, shlink, hlink)))
+  if (is.null(shl)) {
+    shmat <- matrix(1, nrow = nrow(xdat), ncol = 1)
+    if (is.null(shinit)) shinit <- kappar[3]
+  } else {
+    z$trans <- TRUE
+    shmat <- cbind(1, as.matrix(ydat[, shl, drop = FALSE]))
+    if (is.null(shinit)) shinit <- c(kappar[3], rep(0, length(shl)))
+  }
 
-  z1 <- as.matrix(xdat[, 1],ncol=1)
-  zr <- as.matrix(xdat[, r],ncol=1)
+  if (is.null(hl)) {
+    hmat <- matrix(1, nrow = nrow(xdat), ncol = 1)
+    if (is.null(hinit)) hinit <- kappar[4]
+  } else {
+    z$trans <- TRUE
+    hmat <- cbind(1, as.matrix(ydat[, hl, drop = FALSE]))
+    if (is.null(hinit)) hinit <- c(kappar[4], rep(0, length(hl)))
+  }
+
+  z$model <- list(mul = mul, sigl = sigl, shl = shl, hl = hl)
+  z$link <- c(
+    mulink = deparse(substitute(mulink)),
+    siglink = deparse(substitute(siglink)),
+    shlink = deparse(substitute(shlink)),
+    hlink = deparse(substitute(hlink))
+  )
+
+  zr <- drop(xdat[, r, drop = FALSE])
 
   init <- c(muinit, siginit, shinit, hinit)
   names(init) <- c(mu_names, sigma_names, xi_names, h_names)
 
-  # Generate multiple sets of initial values, each with random perturbations
-  init_list <- list(init)
+  init_list <- vector("list", num_inits)
+  init_list[[1]] <- init
 
-  for (i in 2:num_inits) {
-    # Apply random noise to each component of init to create diversity in starting points
-    new_init <- init + c(
-      stats::rnorm(npmu, mean = 0, sd = 1),  # Random noise for mu parameters
-      abs(stats::rnorm(npsc, mean = 0, sd = 1)),  # Random noise for sigma parameters
-      stats::rnorm(npsh, mean = 0, sd = 0.1), # Random noise for xi parameters
-      stats::rnorm(nph, mean = 0, sd = 0.1)   # Random noise for h parameters
-    )
-    init_list[[i]] <- new_init
+  if (num_inits >= 2) {
+    for (i in 2:num_inits) {
+      init_list[[i]] <- init + c(
+        stats::rnorm(npmu, mean = 0, sd = 0.3),
+        abs(stats::rnorm(npsc, mean = 0, sd = 0.2)),
+        stats::rnorm(npsh, mean = 0, sd = 0.05),
+        stats::rnorm(nph, mean = 0, sd = 0.05)
+      )
+    }
   }
 
-  # Define the log-likelihood function for the case when r = 1
+  ## ----------------------------------
+  ## Penalty helpers
+  ## ----------------------------------
+  get_penalty_k <- function(xi, penk, r_now) {
+    if (is.null(penk)) return(0)
+
+    if (penk == "CD") {
+      if (xi >= 0) {
+        p_k <- 1
+      } else if (xi > -1 && xi < 0) {
+        p_k <- exp(-((1 / (1 + xi)) - 1))
+      } else {
+        return(BIG)
+      }
+      return(-r_now * log(p_k))
+    }
+
+    if (penk == "MS") {
+      if (xi >= 0.5 || xi <= -0.5) return(BIG)
+      p_k <- ((0.5 + xi)^(6 - 1)) * ((0.5 - xi)^(9 - 1)) / beta(6, 9)
+      return(-r_now * log(p_k))
+    }
+
+    0
+  }
+
+  get_penalty_h <- function(h, penh, r_now) {
+    if (is.null(penh)) return(0)
+
+    if (r_now == 1) {
+      if (penh == "MS") {
+        if (h <= -0.5 || h >= 0.5) return(BIG)
+        Bef <- function(x) ((0.5 + x)^(6 - 1)) * ((0.5 - x)^(9 - 1))
+        Be <- stats::integrate(Bef, lower = -0.5, upper = 0.5)$value
+        p_h <- ((0.5 + h)^(6 - 1)) * ((0.5 - h)^(9 - 1)) / Be
+        return(-r_now * log(p_h))
+      }
+      if (penh == "MSa") {
+        if (h <= -1.2 || h >= 1.2) return(BIG)
+        Bef <- function(x) ((1.2 + x)^(6 - 1)) * ((1.2 - x)^(9 - 1))
+        Be <- stats::integrate(Bef, lower = -1.2, upper = 1.2)$value
+        p_h <- ((1.2 + h)^(6 - 1)) * ((1.2 - h)^(9 - 1)) / Be
+        return(-r_now * log(p_h))
+      }
+      return(0)
+    }
+
+    B <- 1 / (r_now - 1)
+
+    if (penh == "MS") {
+      if (h <= -0.5 || h >= B) return(BIG)
+      Bef <- function(x) ((0.5 + x)^(6 - 1)) * ((B - x)^(9 - 1))
+      Be <- stats::integrate(Bef, lower = -0.5, upper = B)$value
+      p_h <- ((0.5 + h)^(6 - 1)) * ((B - h)^(9 - 1)) / Be
+      return(-r_now * log(p_h))
+    }
+
+    if (penh == "MSa") {
+      if (h <= -1.2 || h >= B) return(BIG)
+      Bef <- function(x) ((1.2 + x)^(6 - 1)) * ((B - x)^(9 - 1))
+      Be <- stats::integrate(Bef, lower = -1.2, upper = B)$value
+      p_h <- ((1.2 + h)^(6 - 1)) * ((B - h)^(9 - 1)) / Be
+      return(-r_now * log(p_h))
+    }
+
+    0
+  }
+
+  ## ----------------------------------
+  ## Likelihood for r = 1
+  ## ----------------------------------
   k4d.lik <- function(a) {
+    out <- tryCatch({
+      mu <- drop(mulink(mumat %*% a[1:npmu]))
+      sc <- drop(siglink(sigmat %*% a[seq(npmu + 1, length.out = npsc)]))
+      xi <- drop(shlink(shmat %*% a[seq(npmu + npsc + 1, length.out = npsh)]))
+      h  <- drop(hlink(hmat %*% a[seq(npmu + npsc + npsh + 1, length.out = nph)]))
 
-    mu <- drop(mumat %*% (a[1:npmu]))
-    sc <- drop(sigmat %*% (a[seq(npmu + 1, length = npsc)]))
-    xi <- drop(shmat %*% (a[seq(npmu + npsc + 1, length = npsh)]))
-    h  <- drop(hmat %*% (a[seq(npmu + npsc + nph + 1, length = nph)]))
+      if (any(!is.finite(mu)) || any(!is.finite(sc)) || any(!is.finite(xi)) || any(!is.finite(h))) return(BIG)
+      if (any(sc <= 0, na.rm = TRUE)) return(BIG)
+      if (any(abs(xi) < tol, na.rm = TRUE) || any(abs(h) < tol, na.rm = TRUE)) return(BIG)
 
-    y <- (xdat - mu) / sc
-    y <- 1 - xi * y
-    f <- 1 - h * y^(1/xi)
+      x1 <- drop(xdat[, 1, drop = FALSE])
 
-    if (any(y <= 0) || any(sc <= 0) || any(f <= 0) || any(f^(1/h) > 1))
-      return(10^6)
+      y <- 1 - xi * ((x1 - mu) / sc)
+      if (any(y <= 0, na.rm = TRUE)) return(BIG)
 
-    # maximum penalized likelihood estimation
+      f <- 1 - h * y^(1 / xi)
+      if (any(!is.finite(f), na.rm = TRUE) || any(f <= 0, na.rm = TRUE)) return(BIG)
+      if (any(f^(1 / h) > 1, na.rm = TRUE)) return(BIG)
 
-    if(is.null(penk)==F){
+      penalty <- get_penalty_k(xi[1], penk, 1) + get_penalty_h(h[1], penh, 1)
+      if (!is.finite(penalty) || penalty >= BIG) return(BIG)
 
-      if(penk=="CD"){
+      nll <- sum(
+        log(sc) +
+          ((h - 1) / h) * log(f) +
+          (1 - 1 / xi) * log(y),
+        na.rm = TRUE
+      ) + penalty
 
-        if(xi[1]>=0){ p_k <- 1
-        }else if( xi[1] > -1 && xi[1] <0 ){ p_k <- exp(-((1/(1+xi[1])) -1))
-        }else if( xi[1] <= -1){ p_k <- 0}
+      if (!is.finite(nll)) BIG else nll
+    }, error = function(e) BIG)
 
-      }else if(penk=="MS"){
-
-        if( xi[1] >= 0.5 || xi[1] <= -0.5) return(10^6)
-        p_k <-((0.5+xi[1])^(6-1)) * ((0.5-xi[1])^(9-1)) / beta(6,9) # MS_for k
-
-      }}
-
-    if(is.null(penh)==F){
-      if(penh=="MS"){
-
-        if( h[1] <= -0.5 || h[1] >= 0.5) return(10^6)
-        Bef <-function(x) { ((0.5+x)^(6-1)) * ((0.5-x)^(9-1)) }
-        Be  <-stats::integrate(Bef, lower=-0.5, upper= 0.5)[1]$value
-        p_h <-((0.5+h[1])^(6-1)) * ((0.5-h[1])^(9-1)) / Be
-
-      }else if(penh=="MSa"){
-
-        if( h[1] >= 1.2 || h[1] <= -1.2) return(10^6)
-        Bef <-function(x) { ((1.2+x)^(6-1)) * ((1.2-x)^(9-1)) }
-        Be  <-stats::integrate(Bef, lower=-1.2, upper= 1.2 )[1]$value
-        p_h <-((1.2+h[1])^(6-1)) * ((1.2-h[1])^(9-1)) / Be
-
-      }}
-
-    if(is.null(penk)==T & is.null(penh)==T){ penalty<-0
-    }else if(is.null(penk)==F & is.null(penh)==F){ penalty <- r*log(p_k * p_h)
-    }else if(is.null(penk)==F){ penalty <- r*log(p_k)
-    }else if(is.null(penh)==F){ penalty <- r*log(p_h)}
-
-    sum(log(sc)) + sum(log(1 - h * y^(1/xi)) * ((h - 1) / h)) + sum(log(y) * (1 - 1/xi)) - penalty
-
+    out
   }
 
-  # Define the log-likelihood function for the case when r > 1
+  ## ----------------------------------
+  ## Likelihood for r > 1
+  ## ----------------------------------
   rk4d.lik <- function(a) {
+    out <- tryCatch({
+      mu <- drop(mulink(mumat %*% a[1:npmu]))
+      sc <- drop(siglink(sigmat %*% a[seq(npmu + 1, length.out = npsc)]))
+      xi <- drop(shlink(shmat %*% a[seq(npmu + npsc + 1, length.out = npsh)]))
+      h  <- drop(hlink(hmat %*% a[seq(npmu + npsc + npsh + 1, length.out = nph)]))
 
-    mu <- drop(mumat %*% (a[1:npmu]))
-    sc <- drop(sigmat %*% (a[seq(npmu + 1, length = npsc)]))
-    xi <- drop(shmat %*% (a[seq(npmu + npsc + 1, length = npsh)]))
-    h  <- drop(hmat %*% (a[seq(npmu + npsc + nph + 1, length = nph)]))
+      if (any(!is.finite(mu)) || any(!is.finite(sc)) || any(!is.finite(xi)) || any(!is.finite(h))) return(BIG)
+      if (any(sc <= 0, na.rm = TRUE)) return(BIG)
+      if (any(abs(xi) < tol, na.rm = TRUE) || any(abs(h) < tol, na.rm = TRUE)) return(BIG)
 
-    ri  <- (r - seq(1:(r)))
-    cr  <- (1 - ri * h[1])
+      ri <- r - seq_len(r)
+      cr <- 1 - ri * h[1]
+      if (any(cr <= 0, na.rm = TRUE)) return(BIG)
 
-    if (any(sc <= 0) | any(cr < 0)) return(10^6)
+      xmat <- xdat
+      tmp <- sweep(xmat, 1, mu, "-")
+      tmp <- sweep(tmp, 1, sc, "/")
 
-    y <- 1 - xi * (xdat - mu) / sc
+      y <- 1 - xi * tmp
+      if (any(y <= 0, na.rm = TRUE)) return(BIG)
 
-    if (any(y<0)) return(10^6)
+      yr <- 1 - xi * ((zr - mu) / sc)
+      if (any(yr <= 0, na.rm = TRUE)) return(BIG)
 
-    f <- 1 - h * (1 - xi * (zr - mu) / sc)^(1/xi)
+      f <- 1 - h[1] * yr^(1 / xi)
+      if (any(!is.finite(f), na.rm = TRUE) || any(f <= 0, na.rm = TRUE)) return(BIG)
+      if (any(f^(1 / h[1]) > 1, na.rm = TRUE)) return(BIG)
 
-    if (max(h) > min(1 / (1 - xi * (zr - mu) / sc)^(1/xi), na.rm=TRUE)) return(10^6)
-    if (r >= 2 && min(h) > (1 / (r - 1))) return(10^6)
-    if (min(y, na.rm=TRUE) <= 0 || min(f, na.rm=TRUE) <= 0 || max(f^(1/h), na.rm=TRUE) > 1) return(10^6)
+      if (max(h, na.rm = TRUE) > min(1 / yr^(1 / xi), na.rm = TRUE)) return(BIG)
+      if (r >= 2 && min(h, na.rm = TRUE) > (1 / (r - 1))) return(BIG)
 
-    y <- log(sc) + (1 - 1/xi) * log(y) - log(cr)
-    y <- rowSums(y, na.rm=TRUE)
+      yy <- log(sc) +
+        (1 - 1 / xi) * log(y) -
+        matrix(log(cr), nrow = nrow(xmat), ncol = ncol(xmat), byrow = TRUE)
 
-    # maximum penalized likelihood estimation
+      yy <- rowSums(yy, na.rm = TRUE)
 
-    if(is.null(penk)==F){
-      if(penk=="CD"){
+      penalty <- get_penalty_k(xi[1], penk, r) + get_penalty_h(h[1], penh, r)
+      if (!is.finite(penalty) || penalty >= BIG) return(BIG)
 
-        if(xi[1]>=0){ p_k <- 1
-        }else if( xi[1] > -1 && xi[1] <0 ){ p_k <- exp(-((1/(1+xi[1])) -1))
-        }else if( xi[1] <= -1){ p_k <- 0}
+      nll <- sum(((r * h[1] - 1) / h[1]) * log(f) + yy, na.rm = TRUE) + penalty
 
-      }else if(penk=="MS"){
+      if (!is.finite(nll)) BIG else nll
+    }, error = function(e) BIG)
 
-        if( xi[1] >= 0.5 || xi[1] <= -0.5) return(10^6)
-        p_k <-((0.5+xi[1])^(6-1)) * ((0.5-xi[1])^(9-1)) / beta(6,9) # MS_for k
-
-      }}
-
-    if(is.null(penh)==F){
-
-      B   <-1/(r-1)
-
-      if(penh=="MS"){
-
-        if( h[1] <= -0.5 || h[1] >= B) return(10^6)
-        Bef <-function(x) { ((0.5+x)^(6-1)) * ((B-x)^(9-1)) }
-        Be  <-stats::integrate(Bef, lower=-0.5, upper= B)[1]$value
-        p_h <-((0.5+h[1])^(6-1)) * ((B-h[1])^(9-1)) / Be
-
-      }else if(penh=="MSa"){
-
-        if( h[1] <= -1.2 || h[1] >= B) return(10^6)
-
-        Bef <-function(x) { ((1.2+x)^(6-1)) * ((B-x)^(9-1)) }
-        Be  <-stats::integrate(Bef, lower=-1.2, upper= B )[1]$value
-        p_h <-((1.2+h[1])^(6-1)) * ((B-h[1])^(9-1)) / Be
-
-      }}
-
-    if(is.null(penk)==T & is.null(penh)==T){ penalty<-0
-    }else if(is.null(penk)==F & is.null(penh)==F){ penalty <- r*log(p_k * p_h)
-    }else if(is.null(penk)==F){ penalty <- r*log(p_k)
-    }else if(is.null(penh)==F){ penalty <- r*log(p_h)}
-
-    sum((r * h - 1) / h * log(f) + y, na.rm=TRUE) - penalty
-
+    out
   }
 
-  # Apply optimization on each set of initial values and retain results
-  optim_results <- lapply(init_list, function(init) {
-    if (r == 1) {
-      if(z$trans==F){stats::optim(init, k4d.lik, hessian=TRUE, method=method, control=list(maxit=maxit))
-      }else{suppressWarnings(Rsolnp::solnp(init, k4d.lik, control = list(trace = 0)))}
+  likfun <- if (r == 1) k4d.lik else rk4d.lik
+
+  ## ----------------------------------
+  ## Optimization
+  ## ----------------------------------
+  optim_results <- lapply(init_list, function(init_now) {
+    if (!z$trans) {
+      try(
+        stats::optim(
+          init_now, likfun, hessian = TRUE, method = method,
+          control = list(maxit = maxit, trace = 0)
+        ),
+        silent = TRUE
+      )
     } else {
-      if(z$trans==F){stats::optim(init, rk4d.lik, hessian=TRUE, method=method, control=list(maxit=maxit))
-      }else{suppressWarnings(Rsolnp::solnp(init, rk4d.lik, control = list(trace = 0)))}
+      try(
+        suppressWarnings(
+          Rsolnp::solnp(
+            pars = init_now,
+            fun = likfun,
+            control = list(trace = 0)
+          )
+        ),
+        silent = TRUE
+      )
     }
   })
 
-  # Collect optimization results and filter out invalid results
+  optim_results <- Filter(function(res) {
+    !is.null(res) && !inherits(res, "try-error")
+  }, optim_results)
+
+  if (length(optim_results) == 0) {
+    stop("All optimization attempts failed. Try num_inits = 1 or different initial values.")
+  }
+
+  ## ----------------------------------
+  ## Score optimization results
+  ## ----------------------------------
   optim_value <- data.frame(
-    num = 1:length(optim_results),
+    num = seq_along(optim_results),
     nllh = sapply(optim_results, function(res) {
-                  if(z$trans) min(res$values) else res$value}),
+      if (z$trans) min(res$values) else res$value
+    }),
     grad = sapply(optim_results, function(res) {
-      sum(abs(if (r == 1) numDeriv::grad(k4d.lik, res$par) else numDeriv::grad(rk4d.lik, res$par)))
+      par_now <- if (z$trans) res$pars else res$par
+      if (is.null(par_now) || any(!is.finite(par_now))) return(Inf)
+      sum(abs(numDeriv::grad(likfun, par_now)))
     })
   )
 
-  optim_value <- optim_value[optim_value$nllh != 10^6, ]
-  optim_value <- optim_value[order(optim_value$grad, optim_value$nllh), ]
+  optim_value <- optim_value[is.finite(optim_value$nllh) & optim_value$nllh != BIG, , drop = FALSE]
+
+  if (nrow(optim_value) == 0) {
+    stop("All valid optimization results failed. Try num_inits = 1.")
+  }
+
+  optim_value <- optim_value[order(optim_value$grad, optim_value$nllh), , drop = FALSE]
+
   best_result <- optim_results[[optim_value$num[1]]]
+  best_par <- if (z$trans) best_result$pars else best_result$par
 
-  # Extract and store the best-fit parameter values
-  mu <- drop(mumat %*% (best_result$par[1:npmu]))
-  sc <- drop(sigmat %*% (best_result$par[seq(npmu + 1, length = npsc)]))
-  xi <- drop(shmat %*% (best_result$par[seq(npmu + npsc + 1, length = npsh)]))
-  h  <- drop(hmat %*% (best_result$par[seq(npmu + npsc + nph + 1, length = nph)]))
+  mu <- drop(mulink(mumat %*% best_par[1:npmu]))
+  sc <- drop(siglink(sigmat %*% best_par[seq(npmu + 1, length.out = npsc)]))
+  xi <- drop(shlink(shmat %*% best_par[seq(npmu + npsc + 1, length.out = npsh)]))
+  h  <- drop(hlink(hmat %*% best_par[seq(npmu + npsc + npsh + 1, length.out = nph)]))
 
-  # Store results in the output list with dynamic parameter names
-  z$r    <- r
-  z$conv <- best_result$convergence
-  z$nllh <- best_result$value
+  z$r <- r
+  z$conv <- if (z$trans) best_result$convergence else best_result$convergence
+  z$nllh <- if (z$trans) min(best_result$values) else best_result$value
   z$data <- xdat
-  z$mle  <- best_result$par
-  z$cov  <- solve(best_result$hessian)
-  z$se   <- sqrt(diag(z$cov))
-  z$vals <- cbind(mu, sc, xi, h)
+  z$mle <- best_par
 
-  if(show) {
-    if(z$trans)
-      print(z[c(2, 3)])
-    #else print(z[4])
-    if(!z$conv)
-      print(z[c(4, 6, 8, 10)])
+  if (!z$trans && !is.null(best_result$hessian)) {
+    z$cov <- tryCatch(solve(best_result$hessian), error = function(e) NA)
+    z$se <- if (is.matrix(z$cov)) sqrt(diag(z$cov)) else NA
+  } else {
+    z$cov <- NA
+    z$se <- NA
+  }
+
+  z$vals <- cbind(mu = mu, sigma = sc, xi = xi, h = h)
+
+  if (show) {
+    if (z$trans) {
+      print(z[c("model", "link")])
+    }
+    if (!is.null(z$conv) && identical(z$conv, 0L)) {
+      print(z[c("conv", "nllh", "mle", "se")])
+    }
   }
 
   class(z) <- "rk4d.fit"

@@ -2,25 +2,48 @@
 % Please edit documentation in R/rglor.R
 \name{rglor}
 \alias{rglor}
-\title{random sample generation for rglo}
+\title{Random Generation from the Generalized Logistic Distribution for r-Largest Order Statistics}
 \usage{
 rglor(n, r, loc = 0, scale = 1, shape = 0.1)
 }
 \arguments{
-\item{n}{Number of observations}
+\item{n}{A positive integer specifying the number of observations.}
 
-\item{r}{Number of order statistics for each observation.}
+\item{r}{A positive integer specifying the number of order statistics
+for each observation.}
 
-\item{loc, scale, shape}{Location, scale, and shape parameters. Can be vectors, but the lengths must be appropriate.}
+\item{loc}{A numeric value specifying the location parameter.}
+
+\item{scale}{A positive numeric value specifying the scale parameter.}
+
+\item{shape}{A numeric value specifying the shape parameter.}
 }
 \value{
-Random number generation
+A list with components:
+\item{umat}{An \code{n x r} matrix of independent uniform random numbers.}
+\item{wmat}{An \code{n x r} matrix of transformed uniform variables used
+to construct decreasing order statistics.}
+\item{rmat}{An \code{n x r} matrix of simulated \eqn{r}-largest order
+statistics from the generalized logistic distribution.}
 }
 \description{
-random sample generation for rglo
+Generates random samples from the generalized logistic distribution for
+\eqn{r}-largest order statistics.
+}
+\details{
+The function first generates independent uniform random variables and then
+constructs decreasing variables through recursive transformations. These
+are transformed using the generalized logistic quantile function
+\code{\link{qglo}}.
 }
 \examples{
-\dontrun{
-rglor(50, 5, loc = 0, scale=1, shape = 0.1)
+x <- rglor(10, 3, loc = 0, scale = 1, shape = 0.1)
+x$rmat
 }
+\references{
+Shin, Y., & Park, J-S. (2024).
+Generalized logistic model for r-largest order statistics with
+hydrological application.
+\emph{Stochastic Environmental Research and Risk Assessment}.
+\doi{10.1007/s00477-023-02642-7}
 }

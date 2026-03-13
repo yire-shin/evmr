@@ -2,25 +2,38 @@
 % Please edit documentation in R/rgdr.R
 \name{rgdr}
 \alias{rgdr}
-\title{random sample generation for rgd}
+\title{Random Generation from the Gumbel Distribution for r-Largest Order Statistics}
 \usage{
 rgdr(n, r, loc = 0, scale = 1)
 }
 \arguments{
-\item{n}{Number of observations}
+\item{n}{A positive integer specifying the number of observations.}
 
-\item{r}{Number of order statistics for each observation.}
+\item{r}{A positive integer specifying the number of order statistics
+for each observation.}
 
-\item{loc, scale}{Location, scale. Can be vectors, but the lengths must be appropriate.}
+\item{loc}{A numeric value specifying the location parameter.}
+
+\item{scale}{A positive numeric value specifying the scale parameter.}
 }
 \value{
-Random number generation
+A list with components:
+\item{umat}{An \code{n x r} matrix of independent uniform random numbers.}
+\item{wmat}{An \code{n x r} matrix of transformed uniform variables used
+to construct decreasing order statistics.}
+\item{rmat}{An \code{n x r} matrix of simulated \eqn{r}-largest order
+statistics from the Gumbel distribution.}
 }
 \description{
-random sample generation for rgd
+Generates random samples from the Gumbel distribution for
+\eqn{r}-largest order statistics.
+}
+\details{
+The function first generates independent uniform random variables and then
+constructs decreasing variables through cumulative products. These are
+transformed using the Gumbel quantile function \code{\link{qgd}}.
 }
 \examples{
-\dontrun{
-rgdr(50, 5, loc = 0, scale=1)
-}
+x <- rgdr(10, 3, loc = 0, scale = 1)
+x$rmat
 }

@@ -2,23 +2,50 @@
 % Please edit documentation in R/qk4d.R
 \name{qk4d}
 \alias{qk4d}
-\title{qunatile of k4d}
+\title{Quantile Function of the Four-Parameter Kappa Distribution}
 \usage{
 qk4d(p, loc = 0, scale = 1, shape1 = 0.1, shape2 = 0.1)
 }
 \arguments{
-\item{p}{Vector of quantiles.}
+\item{p}{A numeric vector of probabilities in \eqn{(0,1)}.}
 
-\item{loc, scale, shape1, shape2}{Location, scale, and shape parameters. Can be vectors, but the lengths must be appropriate.}
+\item{loc}{A numeric value specifying the location parameter.}
+
+\item{scale}{A positive numeric value specifying the scale parameter.}
+
+\item{shape1}{A numeric value specifying the first shape parameter.}
+
+\item{shape2}{A numeric value specifying the second shape parameter.}
 }
 \value{
-quantile function for the 1-GGD distribution
+A numeric vector of quantiles corresponding to \code{p}.
 }
 \description{
-qunatile of k4d
+Computes the quantiles of the four-parameter kappa distribution
+with location parameter \code{loc}, scale parameter \code{scale},
+and shape parameters \code{shape1} and \code{shape2}.
+}
+\details{
+The quantile function of the four-parameter kappa distribution is
+\deqn{Q(p) = \mu + \frac{\sigma}{\xi}\left[1 - \left(\frac{1-p^h}{h}\right)^\xi \right],}
+where \eqn{\mu} is the location parameter, \eqn{\sigma > 0} is the
+scale parameter, and \eqn{\xi} and \eqn{h} are shape parameters.
+
+For numerical stability, the limiting cases \eqn{\xi = 0} and/or
+\eqn{h = 0} are handled separately.
 }
 \examples{
-\dontrun{
-qk4d(0.5, loc = 0, scale=1, shape1 = 0.1, shape2 = 0.1)
+qk4d(0.5, loc = 0, scale = 1, shape1 = 0.1, shape2 = 0.1)
+qk4d(c(0.1, 0.5, 0.9), loc = 0, scale = 1, shape1 = 0.1, shape2 = 0.1)
 }
+\references{
+Shin, Y., and Park, J.-S.(2023).
+Modeling climate extremes using the four-parameter kappa distribution
+for r-largest order statistics.
+\emph{Weather and Climate Extremes}.
+\doi{10.1016/j.wace.2022.100533}
+
+Hosking, J. R. M. (1994).
+\emph{The four-parameter Kappa distribution}.
+Cambridge University Press.
 }

@@ -1,64 +1,148 @@
-#' @name rld.prof
-#' @aliases rld.prof
-#' @title profile likelihood for rld
-#' @param z An object returned by \code{rggdfit}. The object should represent a stationary model.
-#' @param m The return level (i.e.\ the profile likelihood is for the value that is exceeded with probability 1/\code{m}).
-#' @param xlow,xup The least and greatest value at which to evaluate the profile likelihood.
-#' @param conf The confidence coefficient of the plotted profile confidence interval.
-#' @param nint The number of points at which the profile likelihood is evaluated.
+#' Profile Likelihood for Return Levels under the rLD Model
 #'
-#' @return plot of the profile likelihood is produced, with a horizontal line representing a profile confidence interval with confidence coefficient \code{conf}.
+#' Computes and plots the profile log-likelihood for a return level under
+#' a stationary r-largest logistic distribution (rLD) model fitted by
+#' \code{\link{rld.fit}}.
+#'
+#' @param z An object returned by \code{\link{rld.fit}}. The fitted model
+#'   must represent a stationary model.
+#' @param m A return period greater than 1. The profile likelihood is computed
+#'   for the corresponding return level exceeded with probability \eqn{1/m}.
+#' @param xlow,xup Lower and upper bounds of the return level grid over which
+#'   the profile likelihood is evaluated.
+#' @param conf A numeric vector of confidence levels for profile likelihood
+#'   confidence intervals.
+#' @param nint The number of grid points used to evaluate the profile likelihood.
+#'
+#' @return A data frame containing the return period, estimated return level,
+#'   confidence level, lower confidence limit, upper confidence limit, and
+#'   interval width. A profile likelihood plot is also produced.
+#'
+#' @details
+#' The function evaluates the profile log-likelihood over a grid of return
+#' level values and plots the resulting curve. Horizontal and vertical lines
+#' are added to indicate profile likelihood confidence intervals for the
+#' confidence levels specified in \code{conf}.
+#'
+#' @seealso \code{\link{rld.fit}}, \code{\link{rld.rl}}
 #' @export
 #'
 #' @examples
-#' data(bangkok)
 #' \dontrun{
-#' z<-rld.fit(bangkok)
-#' rld.Prof(z,100,xlow=180,xup=230)
+#' x <- rldr(n = 50, r = 2, loc = 10, scale = 2)
+#' fit <- rld.fit(x$rmat)
+#' rld.prof(fit, m = 100, xlow = 12, xup = 25)
 #' }
-rld.Prof <- function(z, m, xlow, xup, conf = 0.95, nint = 100) {
+rld.prof <- function(z, m, xlow, xup, conf = 0.95, nint = 100) {
 
-  if (m <= 1)
-    stop("`m` must be greater than one")
-  cat("If routine fails, try changing plotting interval", fill = TRUE)
+  if (!inherits(z, "rld.fit")) {
+    warning("'z' does not inherit from class 'rld.fit'.")
+  }
+
+  if (isTRUE(z$trans)) {
+    stop("Profile likelihood is only implemented for stationary models.")
+  }
+
+  if (!is.numeric(m) || length(m) != 1 || !is.finite(m) || m <= 1) {
+    stop("'m' must be a numeric scalar greater than 1.")
+  }
+
+  if (!is.numeric(xlow) || length(xlow) != 1 || !is.finite(xlow)) {
+    stop("'xlow' must be a finite numeric scalar.")
+  }
+
+  if (!is.numeric(xup) || length(xup) != 1 || !is.finite(xup)) {
+    stop("'xup' must be a finite numeric scalar.")
+  }
+
+  if (xlow >= xup) {
+    stop("'xlow' must be smaller than 'xup'.")
+  }
+
+  if (!is.numeric(conf) || any(!is.finite(conf)) || any(conf <= 0 | conf >= 1)) {
+    stop("'conf' must contain values in (0,1).")
+  }
+
+  if (!is.numeric(nint) || length(nint) != 1 || nint < 2) {
+    stop("'nint' must be an integer greater than 1.")
+  }
+  nint <- as.integer(nint)
+
+  if (is.null(z$mle) || length(z$mle) < 2) {
+    stop("'z$mle' must contain location and scale estimates.")
+  }
+
+  if (is.null(z$nllh) || !is.finite(z$nllh)) {
+    stop("'z$nllh' must be available and finite.")
+  }
+
+  cat("If the routine fails, try changing the plotting interval.\n")
 
   r <- z$r
   p <- 1 - (1 / m)
   v <- numeric(nint)
-  x <- seq(xlow, xup, length = nint)
-  sol <- c(z$mle[2])
-  rl  <- rld.rl(z,m)$rl
+  x <- seq(xlow, xup, length.out = nint)
+  sol <- c(z$mle[2])   # initial value: sigma
+  rl <- rld.rl(z, year = m)$rl[1]
 
   rld.plik <- function(a) {
 
-    z1 <- as.matrix(z$data[, 1],ncol=1)
-    zr <- as.matrix(z$data[, r],ncol=1)
+    sc <- a[1]
 
-    ri <- (r - seq(1, r))
-    cr <- (1 + ri)
+    if (!is.finite(sc) || sc <= 0) {
+      return(1e6)
+    }
 
-    mu <- xp - a[1] * log( 1/(expm1(-log(p))))
+    mu <- xp - sc * log(1 / expm1(-log(p)))
 
-    if (any(a[1] <= 0,na.rm=T) | any(cr < 0,na.rm=T) ) return(10^6)
+    if (!is.finite(mu)) {
+      return(1e6)
+    }
 
-    y <- exp(-(z$data - mu)/a[1])
+    xmat <- as.matrix(z$data)
+    zr <- drop(xmat[, r, drop = FALSE])
 
-    f <- 1 + exp(-(zr - mu)/a[1])
+    ri <- r - seq_len(r)
+    cr <- 1 + ri
 
-    if (any(y<= 0, na.rm = TRUE)  || any(f<= 0, na.rm = TRUE) ) return(10^6)
+    if (any(cr <= 0, na.rm = TRUE)) {
+      return(1e6)
+    }
 
-    y <- log(a[1]) - log(y) - log(cr)
-    y <- rowSums(y, na.rm = TRUE)
+    y <- exp(-(xmat - mu) / sc)
+    f <- 1 + exp(-(zr - mu) / sc)
 
-    sum((r + 1) * log(f) + y)
+    if (any(!is.finite(y), na.rm = TRUE) ||
+        any(!is.finite(f), na.rm = TRUE) ||
+        any(y <= 0, na.rm = TRUE) ||
+        any(f <= 0, na.rm = TRUE)) {
+      return(1e6)
+    }
 
+    yy <- log(sc) - log(y) - matrix(log(cr), nrow = nrow(xmat), ncol = ncol(xmat), byrow = TRUE)
+    yy <- rowSums(yy, na.rm = TRUE)
+
+    nll <- sum((r + 1) * log(f) + yy, na.rm = TRUE)
+
+    if (!is.finite(nll)) {
+      return(1e6)
+    }
+
+    nll
   }
 
-  for (i in 1:nint) {
+  for (i in seq_len(nint)) {
     xp <- x[i]
-    opt <- try(suppressWarnings(stats::optim(sol, rld.plik, control = list(trace = 0))))
-    if (inherits(opt, "try-error")) {
-      v[i] <- 10^6
+
+    opt <- try(
+      suppressWarnings(
+        stats::optim(sol, rld.plik, control = list(trace = 0))
+      ),
+      silent = TRUE
+    )
+
+    if (inherits(opt, "try-error") || !is.finite(opt$value)) {
+      v[i] <- 1e6
     } else {
       v[i] <- opt$value
       sol <- opt$par
@@ -67,78 +151,74 @@ rld.Prof <- function(z, m, xlow, xup, conf = 0.95, nint = 100) {
 
   d <- data.frame(x = x, v = -v)
 
-  cent <- which.min(abs(round(x) - round(rl)))
+  if (all(!is.finite(d$v))) {
+    stop("Profile likelihood failed over the entire grid. Try changing 'xlow' and 'xup'.")
+  }
 
-  # Initialize an empty list to store results for each conf value
-  result_list <- list()
+  cent <- which.min(abs(x - rl))
 
-  # Loop through each conf to calculate w for each case and extract ci1, ci2
+  result_list <- vector("list", length(conf))
+
   for (i in seq_along(conf)) {
     current_chisq <- -z$nllh - 0.5 * stats::qchisq(conf[i], 1)
     current_diff <- d$v - current_chisq
 
-    # Find ci1 and ci2
-    ci1 <- d$x[which.min(abs(current_diff[1:cent]))]
-    ci2 <- d$x[cent:length(current_diff)][which.min(abs(current_diff[cent:length(current_diff)]))]
-    cidiff <- ci2 - ci1
+    left_idx <- seq_len(cent)
+    right_idx <- cent:length(current_diff)
 
-    # Append results to the list
+    ci1 <- d$x[left_idx][which.min(abs(current_diff[left_idx]))]
+    ci2 <- d$x[right_idx][which.min(abs(current_diff[right_idx]))]
+
     result_list[[i]] <- data.frame(
       year = m,
       returnlevel = rl,
       conf = conf[i],
       ci1 = ci1,
       ci2 = ci2,
-      cidiff = cidiff,
-      row.names = ""
+      cidiff = ci2 - ci1,
+      row.names = NULL
     )
   }
 
-  # Combine all results into a single data frame
   w_df <- do.call(rbind, result_list)
-
-  # Print the combined data frame
   print(w_df)
 
-  # Plot the profile likelihood and confidence intervals
-  plot(d$x, d$v, type = "l", xlab = "Return level", xlim = c(xlow, xup), las=1,
-       ylab = "Profile Log-likelihood", main = sprintf("Profile Likelihood for CI of %syear Return level in the rLD (r = %s)", m, z$r))
-  ma <- -z$nllh
+  plot(
+    d$x, d$v, type = "l", xlab = "Return level", xlim = c(xlow, xup), las = 1,
+    ylab = "Profile log-likelihood",
+    main = sprintf("Profile Likelihood for %s-Year Return Level under rLD (r = %s)", m, z$r)
+  )
 
-  col <- c("blue", "red", "darkgreen")
-
-  threshold<-list()
-  ci       <-list()
-
-
-  # Draw horizontal lines for each confidence level
-  # Draw vertical lines for ci1 and ci2 for each confidence level
+  cols <- c("blue", "red", "darkgreen", "purple", "orange")
+  cols <- rep(cols, length.out = length(conf))
 
   graphics::abline(v = rl, col = "gray", lty = 2)
 
   for (i in seq_along(conf)) {
-    threshold[[i]] <- -z$nllh - 0.5 * stats::qchisq(conf[i], 1)
-    ci[[i]]        <- result_list[[i]]
+    thr <- -z$nllh - 0.5 * stats::qchisq(conf[i], 1)
+    ci  <- result_list[[i]]
 
-    graphics::segments(x0 = ci[[i]]$ci1, x1= ci[[i]]$ci2, y0=threshold[[i]], y1 = threshold[[i]], col = col[i], lty = 1)
-    graphics::segments(x0 = ci[[i]]$ci1, x1= ci[[i]]$ci2, y0=threshold[[i]], y1 = threshold[[i]], col = col[i], lty = 1)
+    graphics::segments(
+      x0 = ci$ci1, x1 = ci$ci2,
+      y0 = thr, y1 = thr,
+      col = cols[i], lty = 1
+    )
 
-    graphics::abline(v = ci[[i]]$ci1, col = col[i], lty = 2)
-    graphics::abline(v = ci[[i]]$ci2, col = col[i], lty = 2)
+    graphics::abline(v = ci$ci1, col = cols[i], lty = 2)
+    graphics::abline(v = ci$ci2, col = cols[i], lty = 2)
   }
 
-  # Automatically position legend in the top right corner
   legend_labels <- c("Return level", sprintf("Conf: %.2f", conf))
-  legend_colors <- c("gray", col[seq_along(conf)])
+  legend_colors <- c("gray", cols[seq_along(conf)])
+  legend_lty <- c(2, rep(1, length(conf)))
 
   graphics::legend(
-    "topright",                         # Legend position
-    legend = legend_labels,             # Labels based on conf values
-    col = legend_colors,                # Colors for each conf
-    lty = 1,                            # Line style
-    #title = "",                        # Title for legend
-    bg = "white",                       # Background color
-    cex = 0.8                           # Adjust text size
+    "topright",
+    legend = legend_labels,
+    col = legend_colors,
+    lty = legend_lty,
+    bg = "white",
+    cex = 0.8
   )
 
   invisible(w_df)

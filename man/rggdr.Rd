@@ -2,25 +2,45 @@
 % Please edit documentation in R/rggdr.R
 \name{rggdr}
 \alias{rggdr}
-\title{random sample generation for rggd}
+\title{Random Generation from the Generalized Gumbel Distribution for r-Largest Order Statistics}
 \usage{
 rggdr(n, r, loc = 0, scale = 1, shape = 0.1)
 }
 \arguments{
-\item{n}{Number of observations}
+\item{n}{A positive integer specifying the number of observations.}
 
-\item{r}{Number of order statistics for each observation.}
+\item{r}{A positive integer specifying the number of order statistics
+for each observation.}
 
-\item{loc, scale, shape}{Location, scale, and shape parameters. Can be vectors, but the lengths must be appropriate.}
+\item{loc}{A numeric value specifying the location parameter.}
+
+\item{scale}{A positive numeric value specifying the scale parameter.}
+
+\item{shape}{A numeric value specifying the shape parameter.}
 }
 \value{
-Random number generation
+A list with components:
+\item{umat}{An \code{n x r} matrix of independent uniform random numbers.}
+\item{wmat}{An \code{n x r} matrix of transformed uniform variables used
+to construct decreasing order statistics.}
+\item{rmat}{An \code{n x r} matrix of simulated \eqn{r}-largest order
+statistics from the generalized Gumbel distribution.}
 }
 \description{
-random sample generation for rggd
+Generates random samples from the generalized Gumbel distribution for
+\eqn{r}-largest order statistics.
+}
+\details{
+The function first generates independent uniform random variables and then
+constructs decreasing variables through recursive transformations depending
+on the shape parameter. These are transformed using the generalized Gumbel
+quantile function \code{\link{qggd}}.
+
+For valid generation, the shape parameter must satisfy
+\eqn{1 - (j-1)h > 0} for \eqn{j = 2, \dots, r}, which implies
+\eqn{h < 1/(r-1)} when \eqn{r > 1}.
 }
 \examples{
-\dontrun{
-rggdr(50, 5, loc = 0, scale=1, shape = 0.1)
-}
+x <- rggdr(10, 3, loc = 0, scale = 1, shape = 0.1)
+x$rmat
 }

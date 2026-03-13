@@ -18,10 +18,10 @@
 #' evmr(bangkok)
 #' }
 evmr <- function(data,
-                 models = c("rk4d","rglo","rggd","rgd","rld"),
+                 models = c("rk4d", "rglo", "rggd", "rgd", "rld"),
                  num_inits = 100) {
 
-  allowed <- c("rk4d","rglo","rggd","rgd","rld")
+  allowed <- c("rk4d", "rglo", "rggd", "rgd", "rld")
 
   if (!all(models %in% allowed)) {
     stop("models must be one of: ", paste(allowed, collapse = ", "))
@@ -44,6 +44,16 @@ evmr <- function(data,
   standardize_result <- function(x, model_name) {
     x <- as.data.frame(x)
 
+    # model-specific remapping
+    if (model_name == "rggd") {
+      if ("xi" %in% names(x) && !"h" %in% names(x)) {
+        names(x)[names(x) == "xi"] <- "h"
+      }
+      if ("xi.se" %in% names(x) && !"h.se" %in% names(x)) {
+        names(x)[names(x) == "xi.se"] <- "h.se"
+      }
+    }
+
     x$model <- model_name
 
     for (nm in common_cols) {
@@ -53,8 +63,7 @@ evmr <- function(data,
     }
 
     x$model <- as.character(x$model)
-
-    x <- x[, common_cols]
+    x <- x[, common_cols, drop = FALSE]
 
     x
   }

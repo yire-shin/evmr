@@ -2,32 +2,48 @@
 % Please edit documentation in R/rglo.prof.R
 \name{rglo.prof}
 \alias{rglo.prof}
-\alias{rglo.Prof}
-\title{profile likelihood for rglo}
+\title{Profile Likelihood for Return Levels under the rGLO Model}
 \usage{
-rglo.Prof(z, m, xlow, xup, conf = 0.95, nint = 100)
+rglo.prof(z, m, xlow, xup, conf = 0.95, nint = 100)
 }
 \arguments{
-\item{z}{An object returned by \code{rglofit}. The object should represent a stationary model.}
+\item{z}{An object returned by \code{\link{rglo.fit}}. The fitted model
+must represent a stationary model.}
 
-\item{m}{The return level (i.e.\ the profile likelihood is for the value that is exceeded with probability 1/\code{m}).}
+\item{m}{A return period greater than 1. The profile likelihood is computed
+for the corresponding return level exceeded with probability \eqn{1/m}.}
 
-\item{xlow, xup}{The least and greatest value at which to evaluate the profile likelihood.}
+\item{xlow, xup}{Lower and upper bounds of the return level grid over which
+the profile likelihood is evaluated.}
 
-\item{conf}{The confidence coefficient of the plotted profile confidence interval.}
+\item{conf}{A numeric vector of confidence levels for profile likelihood
+confidence intervals.}
 
-\item{nint}{The number of points at which the profile likelihood is evaluated.}
+\item{nint}{The number of grid points used to evaluate the profile likelihood.}
 }
 \value{
-plot of the profile likelihood is produced, with a horizontal line representing a profile confidence interval with confidence coefficient \code{conf}.
+A data frame containing the return period, estimated return level,
+confidence level, lower confidence limit, upper confidence limit, and
+interval width. A profile likelihood plot is also produced.
 }
 \description{
-profile likelihood for rglo
+Computes and plots the profile log-likelihood for a return level under
+a stationary r-largest generalized logistic distribution (rGLO) model
+fitted by \code{\link{rglo.fit}}.
+}
+\details{
+The function evaluates the profile log-likelihood over a grid of return
+level values and plots the resulting curve. Horizontal and vertical lines
+are added to indicate profile likelihood confidence intervals for the
+confidence levels specified in \code{conf}.
 }
 \examples{
-data(bangkok)
 \dontrun{
-z<-rglo.fit(bangkok)
-rglo.Prof(z,100,xlow=200,xup=500)
+x <- rglor(n = 50, r = 2, loc = 10, scale = 2, shape = 0.1)
+fit <- rglo.fit(x$rmat)
+rglo.prof(fit, m = 100, xlow = 12, xup = 25)
 }
+}
+\seealso{
+\code{\link{rglo.fit}}, \code{\link{rglo.rl}}
 }

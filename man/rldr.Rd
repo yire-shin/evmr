@@ -2,25 +2,38 @@
 % Please edit documentation in R/rldr.R
 \name{rldr}
 \alias{rldr}
-\title{random sample generation for rld}
+\title{Random Generation from the Logistic Distribution for r-Largest Order Statistics}
 \usage{
 rldr(n, r, loc = 0, scale = 1)
 }
 \arguments{
-\item{n}{Number of observations}
+\item{n}{A positive integer specifying the number of observations.}
 
-\item{r}{Number of order statistics for each observation.}
+\item{r}{A positive integer specifying the number of order statistics
+for each observation.}
 
-\item{loc, scale}{Location, scale. Can be vectors, but the lengths must be appropriate.}
+\item{loc}{A numeric value specifying the location parameter.}
+
+\item{scale}{A positive numeric value specifying the scale parameter.}
 }
 \value{
-Random number generation
+A list with components:
+\itemize{
+\item \code{umat}: an \code{n x r} matrix of independent uniform random numbers
+\item \code{wmat}: an \code{n x r} matrix of transformed uniform variables
+\item \code{rmat}: an \code{n x r} matrix of simulated \eqn{r}-largest order statistics
+}
 }
 \description{
-random sample generation for rld
+Generates random samples from the logistic distribution for
+\eqn{r}-largest order statistics.
+}
+\details{
+The function first generates independent uniform random variables and then
+constructs decreasing transformed variables recursively. These are
+transformed by the logistic quantile function \code{\link{qld}}.
 }
 \examples{
-\dontrun{
-rldr(50, 5, loc = 0, scale=1)
-}
+x <- rldr(10, 3, loc = 0, scale = 1)
+x$rmat
 }

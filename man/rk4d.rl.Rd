@@ -2,27 +2,46 @@
 % Please edit documentation in R/rk4d.rl.R
 \name{rk4d.rl}
 \alias{rk4d.rl}
-\title{return level for k4d}
+\title{Return Levels for the Four-Parameter Kappa Distribution}
 \usage{
-rk4d.rl(z, year = c(20, 50, 100, 200), show = F)
+rk4d.rl(z, year = c(20, 50, 100, 200), show = FALSE)
 }
 \arguments{
-\item{z}{An object returned by \code{rk4dfit}. The object should represent a stationary model.}
+\item{z}{An object returned by \code{\link{rk4d.fit}}. The fitted model
+should represent a stationary model.}
 
-\item{year}{The return level (i.e.\ the profile likelihood is for the value that is exceeded with probability 1/\code{m}).}
+\item{year}{A numeric vector of return periods for which return levels
+are to be computed.}
 
-\item{show}{Logical; if \code{TRUE} (the default), print details of the result.}
+\item{show}{Logical. If \code{TRUE}, the estimated return levels and
+their standard errors are printed.}
 }
 \value{
-The return level and numeric vector giving the standard errors for the return level.
+The input object \code{z} with two additional components:
+\itemize{
+\item \code{rl}: a numeric vector of estimated return levels
+\item \code{rlse}: a numeric vector of standard errors of the estimated return levels
+}
 }
 \description{
-return level for k4d
+Computes return levels and their standard errors for a stationary
+four-parameter kappa model fitted by \code{\link{rk4d.fit}}.
+}
+\details{
+For a return period \eqn{T}, the return level is defined as the quantile
+exceeded with probability \eqn{1/T}. Under the four-parameter kappa
+distribution, the return level is
+\deqn{x_T = \mu + \frac{\sigma}{\xi} - \frac{\sigma}{\xi}
+\left(\frac{1-(1-1/T)^h}{h}\right)^\xi,}
+and standard errors are obtained using the delta method.
 }
 \examples{
-\dontrun{
-data(bangkok)
-result<-rk4d.fit(bangkok)
-rk4d.rl(result$mle,result$cov,100)
+x <- rk4dr(n = 50, r = 2, loc = 10, scale = 2, shape1 = 0.1, shape2 = 0.1)
+fit <- rk4d.fit(x$rmat, num_inits = 5)
+out <- rk4d.rl(fit, year = c(20, 50, 100))
+out$rl
+out$rlse
 }
+\seealso{
+\code{\link{rk4d.fit}}, \code{\link{rk4d.prof}}
 }

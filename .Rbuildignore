@@ -2,3 +2,9 @@
 ^\.Rproj\.user$
 ^LICENSE\.md$
 ^README\.Rmd$
+^doc$
+^Meta$
+^^Meta$$
+^^doc$$
+^^\\.quarto$$
+^^_quarto\\.yml$$

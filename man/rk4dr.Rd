@@ -2,25 +2,53 @@
 % Please edit documentation in R/rk4dr.R
 \name{rk4dr}
 \alias{rk4dr}
-\title{random sample generation for rk4d}
+\title{Random Generation from the Four-Parameter Kappa Distribution for r-Largest Order Statistics}
 \usage{
 rk4dr(n, r, loc = 0, scale = 1, shape1 = 0.1, shape2 = 0.1)
 }
 \arguments{
-\item{n}{Number of observations}
+\item{n}{A positive integer specifying the number of observations.}
 
-\item{r}{Number of order statistics for each observation.}
+\item{r}{A positive integer specifying the number of order statistics
+for each observation.}
 
-\item{loc, scale, shape1, shape2}{Location, scale, and shape parameters. Can be vectors, but the lengths must be appropriate.}
+\item{loc}{A numeric value specifying the location parameter.}
+
+\item{scale}{A positive numeric value specifying the scale parameter.}
+
+\item{shape1}{A numeric value specifying the first shape parameter.}
+
+\item{shape2}{A numeric value specifying the second shape parameter.}
 }
 \value{
-Random number generation
+A list with components:
+\itemize{
+\item \code{umat}: an \code{n x r} matrix of independent uniform random numbers
+\item \code{wmat}: an \code{n x r} matrix of transformed uniform variables
+\item \code{rmat}: an \code{n x r} matrix of simulated \eqn{r}-largest order statistics
+}
 }
 \description{
-random sample generation for rk4d
+Generates random samples from the four-parameter kappa distribution for
+\eqn{r}-largest order statistics.
+}
+\details{
+The function first generates independent uniform random variables and then
+constructs decreasing transformed variables recursively using the second
+shape parameter. These are transformed by the four-parameter kappa quantile
+function \code{\link{qk4d}}.
+
+For valid generation with \eqn{r > 1}, the second shape parameter should
+satisfy \eqn{shape2 < 1/(r-1)}.
 }
 \examples{
-\dontrun{
-rk4dr(50, 5, loc = 0, scale=1, shape1 = 0.1, shape2 = 0.1)
+x <- rk4dr(10, 3, loc = 0, scale = 1, shape1 = 0.1, shape2 = 0.1)
+x$rmat
 }
+\references{
+Shin, Y., & Park, J.-S. (2023).
+Modeling climate extremes using the four-parameter kappa distribution
+for r-largest order statistics.
+\emph{Weather and Climate Extremes}.
+\doi{10.1016/j.wace.2022.100533}
 }

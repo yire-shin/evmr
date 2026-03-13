@@ -1,50 +1,72 @@
-#' @name rgdr
-#' @aliases rgdr
-#' @title random sample generation for rgd
-#' @param n Number of observations
-#' @param r Number of order statistics for each observation.
-#' @param loc,scale Location, scale. Can be vectors, but the lengths must be appropriate.
+#' Random Generation from the Gumbel Distribution for r-Largest Order Statistics
 #'
-#' @return Random number generation
+#' Generates random samples from the Gumbel distribution for
+#' \eqn{r}-largest order statistics.
+#'
+#' @param n A positive integer specifying the number of observations.
+#' @param r A positive integer specifying the number of order statistics
+#'   for each observation.
+#' @param loc A numeric value specifying the location parameter.
+#' @param scale A positive numeric value specifying the scale parameter.
+#'
+#' @return A list with components:
+#' \item{umat}{An \code{n x r} matrix of independent uniform random numbers.}
+#' \item{wmat}{An \code{n x r} matrix of transformed uniform variables used
+#' to construct decreasing order statistics.}
+#' \item{rmat}{An \code{n x r} matrix of simulated \eqn{r}-largest order
+#' statistics from the Gumbel distribution.}
+#'
+#' @details
+#' The function first generates independent uniform random variables and then
+#' constructs decreasing variables through cumulative products. These are
+#' transformed using the Gumbel quantile function \code{\link{qgd}}.
+#'
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' rgdr(50, 5, loc = 0, scale=1)
-#' }
+#' x <- rgdr(10, 3, loc = 0, scale = 1)
+#' x$rmat
 rgdr <- function(n, r, loc = 0, scale = 1) {
 
-  z<-list()
+  if (!is.numeric(n) || length(n) != 1 || !is.finite(n) || n <= 0 || n != as.integer(n)) {
+    stop("'n' must be a positive integer.")
+  }
 
-  umat <- matrix(0, nrow = n, ncol = r)
-  wmat <- matrix(0, nrow = n, ncol = r)
-  colnames(umat) <- paste0("u", 1:r)
-  colnames(wmat) <- paste0("w", 1:r)
+  if (!is.numeric(r) || length(r) != 1 || !is.finite(r) || r <= 0 || r != as.integer(r)) {
+    stop("'r' must be a positive integer.")
+  }
 
-  i <- 1
-  while (i <= n) {
-    # uniform(0, 1) random number generation
-    u <- stats::runif(r)
-    # w_1 = u_1, w_2 = u_1 * u_2^(1-(2-1)*h), ..., w_r = w_(r-1) * u_r^(1-(r-1)*h)
-    w <- numeric(r)
-    w[1] <- u[1]
+  if (!is.numeric(loc) || any(!is.finite(loc))) {
+    stop("'loc' must be numeric and finite.")
+  }
+
+  if (!is.numeric(scale) || any(!is.finite(scale))) {
+    stop("'scale' must be numeric and finite.")
+  }
+
+  if (any(scale <= 0)) {
+    stop("'scale' must be positive.")
+  }
+
+  z <- list()
+
+  umat <- matrix(stats::runif(n * r), nrow = n, ncol = r)
+  wmat <- umat
+
+  if (r >= 2) {
     for (j in 2:r) {
-      w[j] <- w[j - 1] * (u[j])
-    }
-
-    # save data if this condition w_1 > w_2 > ... > w_r
-    if (all(diff(w) < 0)) {
-      umat[i, ] <- u
-      wmat[i, ] <- w
-      i <- i + 1
+      wmat[, j] <- wmat[, j - 1] * umat[, j]
     }
   }
+
+  colnames(umat) <- paste0("u", seq_len(r))
+  colnames(wmat) <- paste0("w", seq_len(r))
 
   z$umat <- umat
   z$wmat <- wmat
   z$rmat <- qgd(wmat, loc = loc, scale = scale)
 
-  colnames(z$rmat) <- paste0("r", 1:r)
+  colnames(z$rmat) <- paste0("r", seq_len(r))
 
   invisible(z)
 }

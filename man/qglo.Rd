@@ -2,23 +2,42 @@
 % Please edit documentation in R/qglo.R
 \name{qglo}
 \alias{qglo}
-\title{qunatile of glo}
+\title{Quantile Function of the Generalized Logistic Distribution}
 \usage{
 qglo(p, loc = 0, scale = 1, shape = 0)
 }
 \arguments{
-\item{p}{Vector of quantiles.}
+\item{p}{A numeric vector of probabilities in \eqn{(0,1)}.}
 
-\item{loc, scale, shape}{Location, scale, and shape parameters. Can be vectors, but the lengths must be appropriate.}
+\item{loc}{A numeric value specifying the location parameter.}
+
+\item{scale}{A positive numeric value specifying the scale parameter.}
+
+\item{shape}{A numeric value specifying the shape parameter.}
 }
 \value{
-quantile function for the 1-GGD distribution
+A numeric vector of quantiles corresponding to \code{p}.
 }
 \description{
-qunatile of glo
+Computes the quantiles of the generalized logistic distribution
+with location parameter \code{loc}, scale parameter \code{scale},
+and shape parameter \code{shape}.
+}
+\details{
+The quantile function is computed as
+\deqn{Q(p) = \mu + \frac{\sigma}{\xi}\left[1 - \left(\frac{1-p}{p}\right)^{\xi}\right], \quad \xi \neq 0,}
+with the limiting case
+\deqn{Q(p) = \mu - \sigma \log\left(\frac{1-p}{p}\right), \quad \xi = 0,}
+where \eqn{\mu} is the location parameter, \eqn{\sigma > 0} is the
+scale parameter, and \eqn{\xi} is the shape parameter.
 }
 \examples{
-\dontrun{
-qglo(0.5, loc = 0, scale=1, shape = 0.1)
+qglo(0.5, loc = 0, scale = 1, shape = 0.1)
+qglo(c(0.1, 0.5, 0.9), loc = 0, scale = 1, shape = 0.1)
 }
+\references{
+Ahmad, M. I., Sinclair, C. D., and Werritty, A. (1988).
+Log-logistic flood frequency analysis.
+\emph{Journal of Hydrology}.
+\doi{10.1016/0022-1694(88)90015-7}
 }

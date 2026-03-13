@@ -2,7 +2,7 @@
 % Please edit documentation in R/rggd.summary.R
 \name{rggd.summary}
 \alias{rggd.summary}
-\title{Summary of rggd.fit}
+\title{Summary of Fitted rGGD Models over Different Values of r}
 \usage{
 rggd.summary(
   data,
@@ -29,14 +29,14 @@ rggd.summary(
 r-largest order statistics. Each row should contain decreasing order
 statistics for one block or time period.}
 
-\item{r}{Optional integer specifying the maximum number of order
-statistics to summarize. If \code{NULL}, all available columns are used.}
+\item{r}{Optional integer giving the maximum number of order statistics
+to summarize. If \code{NULL}, all available columns are used.}
 
-\item{ydat}{A matrix of covariates for generalized linear modelling of the
-parameters, or \code{NULL} for stationary fitting.}
+\item{ydat}{A matrix or data frame of covariates for generalized linear
+modelling of the parameters, or \code{NULL} for stationary fitting.}
 
-\item{mul, sigl, hl}{Numeric vectors of integers giving the columns of
-\code{ydat} to be used for the location, scale, and shape parameters,
+\item{mul, sigl, hl}{Integer vectors indicating which columns of
+\code{ydat} are used for the location, scale, and shape parameters,
 respectively.}
 
 \item{mulink, siglink, hlink}{Inverse link functions for the location,
@@ -47,33 +47,33 @@ scale, and shape parameters, respectively.}
 \item{muinit, siginit, hinit}{Optional initial values for the location,
 scale, and shape parameters.}
 
-\item{show}{Logical; if \code{TRUE}, print details from model fitting.}
+\item{show}{Logical. If \code{TRUE}, print details from model fitting.}
 
 \item{method}{Optimization method passed to \code{\link{optim}}.}
 
 \item{maxit}{Maximum number of iterations for optimization.}
 
-\item{\dots}{Additional arguments passed to \code{rggd.fit()}.}
+\item{...}{Additional arguments passed to \code{\link{rggd.fit}}.}
 }
 \value{
 A data frame containing:
 \itemize{
 \item \code{r}: number of order statistics used
 \item \code{nllh}: negative log-likelihood
-\item \code{mu}, \code{sigma}, \code{xi}: parameter estimates
-\item \code{mu.se}, \code{sigma.se}, \code{xi.se}: standard errors
-\item return levels and their standard errors for 20-, 50-, 100-, and 200-year periods
+\item \code{mu}, \code{sigma}, \code{h}: parameter estimates
+\item \code{mu.se}, \code{sigma.se}, \code{h.se}: standard errors
+\item \code{rl20}, \code{rl50}, \code{rl100}, \code{rl200}: return levels
+\item \code{rl20.se}, \code{rl50.se}, \code{rl100.se}, \code{rl200.se}:
+standard errors of return levels
 }
 }
 \description{
-Summarize the fitted generalized Gumbel distribution models for
+Summarizes fitted generalized Gumbel distribution models for
 r-largest order statistics over \eqn{r = 1, \dots, R}. For each value
-of \code{r}, the function fits the model using \code{rggd.fit()} and
-computes return levels using \code{rggd.rl()}.
+of \code{r}, the function fits the model using \code{\link{rggd.fit}}
+and computes return levels using \code{\link{rggd.rl}}.
 }
 \examples{
-\dontrun{
-data(bangkok)
-rggd.summary(bangkok)
-}
+x <- rggdr(n = 50, r = 3, loc = 10, scale = 2, shape = 0.1)
+rggd.summary(x$rmat)
 }

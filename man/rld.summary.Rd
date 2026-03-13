@@ -2,7 +2,7 @@
 % Please edit documentation in R/rld.summary.R
 \name{rld.summary}
 \alias{rld.summary}
-\title{Summary of rld.fit}
+\title{Summary of Fitted rLD Models over Different Values of r}
 \usage{
 rld.summary(
   data,
@@ -26,14 +26,15 @@ rld.summary(
 r-largest order statistics. Each row should contain decreasing order
 statistics for one block or time period.}
 
-\item{r}{Optional integer specifying the maximum number of order
-statistics to summarize. If \code{NULL}, all available columns are used.}
+\item{r}{Optional integer giving the maximum number of order statistics
+to summarize. If \code{NULL}, all available columns are used.}
 
-\item{ydat}{A matrix of covariates for generalized linear modelling of the
-parameters, or \code{NULL} for stationary fitting.}
+\item{ydat}{A matrix or data frame of covariates for generalized linear
+modelling of the parameters, or \code{NULL} for stationary fitting.}
 
-\item{mul, sigl}{Numeric vectors of integers giving the columns of
-\code{ydat} to be used for the location and scale parameters, respectively.}
+\item{mul, sigl}{Integer vectors indicating which columns of
+\code{ydat} are used for the location and scale parameters,
+respectively.}
 
 \item{mulink, siglink}{Inverse link functions for the location and scale
 parameters, respectively.}
@@ -43,13 +44,13 @@ parameters, respectively.}
 \item{muinit, siginit}{Optional initial values for the location and scale
 parameters.}
 
-\item{show}{Logical; if \code{TRUE}, print details from model fitting.}
+\item{show}{Logical. If \code{TRUE}, print details from model fitting.}
 
 \item{method}{Optimization method passed to \code{\link{optim}}.}
 
 \item{maxit}{Maximum number of iterations for optimization.}
 
-\item{\dots}{Additional arguments passed to \code{rld.fit()}.}
+\item{...}{Additional arguments passed to \code{\link{rld.fit}}.}
 }
 \value{
 A data frame containing:
@@ -58,18 +59,18 @@ A data frame containing:
 \item \code{nllh}: negative log-likelihood
 \item \code{mu}, \code{sigma}: parameter estimates
 \item \code{mu.se}, \code{sigma.se}: standard errors
-\item return levels and their standard errors for 20-, 50-, 100-, and 200-year periods
+\item \code{rl20}, \code{rl50}, \code{rl100}, \code{rl200}: return levels
+\item \code{rl20.se}, \code{rl50.se}, \code{rl100.se}, \code{rl200.se}:
+standard errors of return levels
 }
 }
 \description{
-Summarize the fitted logistic distribution models for r-largest order
+Summarizes fitted logistic distribution models for r-largest order
 statistics over \eqn{r = 1, \dots, R}. For each value of \code{r},
-the function fits the model using \code{rld.fit()} and computes
-return levels using \code{rld.rl()}.
+the function fits the model using \code{\link{rld.fit}} and computes
+return levels using \code{\link{rld.rl}}.
 }
 \examples{
-\dontrun{
-data(bangkok)
-rld.summary(bangkok)
-}
+x <- rldr(n = 50, r = 3, loc = 10, scale = 2)
+rld.summary(x$rmat, num_inits = 5)
 }
