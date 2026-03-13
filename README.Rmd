@@ -89,7 +89,7 @@ rk4d.rl(fit)
 rk4d.prof(fit, m = 100, xlow = 12, xup = 25)
 ```
 
-### Entropy difference test
+### Entropy difference test for selecting r
 
 ```r
 rk4dEdtest(x$rmat)
@@ -154,13 +154,23 @@ rglo.rl(fit)
 rglo.prof(fit, m = 100, xlow = 12, xup = 25)
 ```
 
-### Entropy difference test
+### Entropy difference test for selecting r
 
 ```r
 rgloEdtest(x$rmat)
 ```
 
 ### Reference
+
+Ahmad et al. (1988).  
+Log-logistic flood frequency analysis.  
+*Journal of Hydrology*.  
+<https://doi.org/10.1016/0022-1694(88)90015-7>
+
+Coles, S. (2001).  
+*An Introduction to Statistical Modeling of Extreme Values*.  
+Springer.  
+<https://doi.org/10.1007/978-1-4471-3675-0>
 
 Shin, Y., & Park, J.-S. (2024).  
 Generalized logistic model for r-largest order statistics with
@@ -213,16 +223,22 @@ rggdEdtest(x$rmat)
 
 ### Reference
 
+Coles, S. (2001).  
+*An Introduction to Statistical Modeling of Extreme Values*.  
+Springer.  
+<https://doi.org/10.1007/978-1-4471-3675-0>
+
+Jeong et al. (2014).  
+A three-parameter kappa distribution with hydrologic application:
+A generalized Gumbel distribution.  
+<https://doi.org/10.1007/s00477-014-0865-8>
+
 Shin, Y., & Park, J.-S. (2025).  
 Generalized Gumbel model for r-largest order statistics with application
 to peak streamflow.  
 *Scientific Reports*.  
 <https://doi.org/10.1038/s41598-024-83273-y>
 
-Jeong et al. (2014).  
-A three-parameter kappa distribution with hydrologic application:
-A generalized Gumbel distribution.  
-<https://doi.org/10.1007/s00477-014-0865-8>
 
 ------------------------------------------------------------------------
 
@@ -260,7 +276,7 @@ rgd.rl(fit)
 rgd.prof(fit, m = 100, xlow = 12, xup = 25)
 ```
 
-### Entropy difference test
+### Entropy difference test for selecting r
 
 ```r
 rgdEdtest(x$rmat)
@@ -272,6 +288,17 @@ Coles, S., & Dixon, M. (1999).
 Likelihood-based inference for extreme value models.  
 *Extremes*.  
 <https://doi.org/10.1023/A:1009905222644>
+
+Jeong et al. (2014).  
+A three-parameter kappa distribution with hydrologic application:
+A generalized Gumbel distribution.  
+<https://doi.org/10.1007/s00477-014-0865-8>
+
+Shin, Y., & Park, J.-S. (2025).  
+Generalized Gumbel model for r-largest order statistics with application
+to peak streamflow.  
+*Scientific Reports*.  
+<https://doi.org/10.1038/s41598-024-83273-y>
 
 ------------------------------------------------------------------------
 
@@ -309,7 +336,7 @@ rld.rl(fit)
 rld.prof(fit, m = 100, xlow = 12, xup = 25)
 ```
 
-### Entropy difference test
+### Entropy difference test for selecting r
 
 ```r
 rldEdtest(x$rmat)
@@ -321,6 +348,17 @@ Ahmad et al. (1988).
 Log-logistic flood frequency analysis.  
 *Journal of Hydrology*.  
 <https://doi.org/10.1016/0022-1694(88)90015-7>
+
+Coles, S. (2001).  
+*An Introduction to Statistical Modeling of Extreme Values*.  
+Springer.  
+<https://doi.org/10.1007/978-1-4471-3675-0>
+
+Shin, Y., & Park, J.-S. (2024).  
+Generalized logistic model for r-largest order statistics with
+hydrological application.  
+*Stochastic Environmental Research and Risk Assessment*.  
+<https://doi.org/10.1007/s00477-023-02642-7>
 
 ------------------------------------------------------------------------
 
@@ -351,34 +389,25 @@ This returns a combined summary table containing
 - standard errors
 - return level estimates
 
-------------------------------------------------------------------------
-
-# Choosing r
-
-In practice, the value of `r` is usually unknown.
-
-Small values of `r` may waste information, while overly large values may
-introduce bias.
-
-The package provides entropy difference based sequential testing
-procedures through the `.edtest()` functions to help determine a
-reasonable value of `r`.
-
-Reference:
-
-Bader, B., Yan, J., & Zhang, X. (2017).  
-Automated selection of r for the r-largest order statistics approach.  
-*Statistics and Computing*.  
-<https://doi.org/10.1007/s11222-016-9697-3>
 
 ------------------------------------------------------------------------
 
 # References
 
+Ahmad et al. (1988).  
+Log-logistic flood frequency analysis.  
+*Journal of Hydrology*.  
+<https://doi.org/10.1016/0022-1694(88)90015-7>
+
 Bader, B., Yan, J., & Zhang, X. (2017).  
 Automated selection of r for the r-largest order statistics approach.  
 *Statistics and Computing*.  
 <https://doi.org/10.1007/s11222-016-9697-3>
+
+Coles, S. (2001).  
+*An Introduction to Statistical Modeling of Extreme Values*.  
+Springer.  
+<https://doi.org/10.1007/978-1-4471-3675-0>
 
 Coles, S., & Dixon, M. (1999).  
 Likelihood-based inference for extreme value models.  
@@ -393,11 +422,6 @@ Generalized maximum-likelihood generalized extreme-value quantile
 estimators for hydrologic data.  
 *Water Resources Research*.  
 <https://doi.org/10.1029/1999WR900330>
-
-Ahmad et al. (1988).  
-Log-logistic flood frequency analysis.  
-*Journal of Hydrology*.  
-<https://doi.org/10.1016/0022-1694(88)90015-7>
 
 Jeong et al. (2014).  
 A three-parameter kappa distribution with hydrologic application:
