@@ -13,7 +13,7 @@ Authors@R: c(
              role = c("aut", "ths"),
              email = "jspark@chonnam.ac.kr",
              comment = c(ORCID = "0000-0002-8460-4869")))
-Description: Description: Tools for extreme value modeling based on the r-largest 
+Description: Tools for extreme value modeling based on the r-largest 
     order statistics framework. The package provides functions for 
     parameter estimation via maximum likelihood, return level 
     estimation with standard errors, profile likelihood-based 
@@ -40,8 +40,6 @@ Description: Description: Tools for extreme value modeling based on the r-larges
     <doi:10.1007/s11222-016-9697-3>. The package is intended for 
     hydrological, climatological, and environmental extreme value 
     analysis.
-Keywords: extreme value theory, r-largest order statistics, 
-    hydrological frequency analysis, return level estimation
 License: GPL-3
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
